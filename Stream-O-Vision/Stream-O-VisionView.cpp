@@ -46,15 +46,15 @@ END_MESSAGE_MAP()
 CStreamOVisionView::CStreamOVisionView() noexcept
 	: CFormView(IDD_STREAMOVISION_FORM)
 {
-	this->m_database.OpenDatabase();
-	this->m_database.LoadAll();
-	Stations = this->m_database.GetStationMap();
+	this->Database.OpenDatabase();
+	this->Database.LoadAll();
+	this->Stations = this->Database.GetStationMap();
 	
 }
 
 CStreamOVisionView::~CStreamOVisionView()
 {
-	this->m_database.CloseDatabase();
+	this->Database.CloseDatabase();
 	for (auto station = Stations.begin(); station != Stations.end(); ++station) {
 		libvlc_release(station->vlcInstance);
 	}
@@ -81,6 +81,7 @@ void CStreamOVisionView::OnInitialUpdate()
 	CFormView::OnInitialUpdate();
 	GetParentFrame()->RecalcLayout();
 	ResizeParentToFit();
+	UpdateStations();
 
 }
 
@@ -121,7 +122,7 @@ char* CStreamOVisionView::ConvertCStringtoStr(CString input) {
 void CStreamOVisionView::UpdatePlaylistContents() {
 	PlaylistContents.ResetContent();
 	int index = StationList.GetCurSel();
-	for (auto media = Stations[index].Media.begin(); media != this->Stations[index].Media.end(); ++media) {
+	for (auto media = Stations[index].Media.begin(); media != Stations[index].Media.end(); ++media) {
 		PlaylistContents.AddString(media->Filename);
 	}
 }
@@ -178,8 +179,8 @@ void CStreamOVisionView::OnBnClickedDeletestation()
 
 void CStreamOVisionView::UpdateStations() {
 	StationList.ResetContent();
-	for (auto i = this->Stations.begin(); i != this->Stations.end(); ++i) {
-		StationList.AddString(i->StationName + " (" + i->StationId + ")");
+	for (auto station = Stations.begin(); station != Stations.end(); ++station) {
+		StationList.AddString(station->StationName + " (" + station->StationId + ")");
 	}
 }
 
@@ -233,13 +234,3 @@ void CStreamOVisionView::OnBnClickedStop()
 
 
 
-void CStreamOVisionView::OnUpdate(CView* /*pSender*/, LPARAM /*lHint*/, CObject* /*pHint*/)
-{
-}
-
-
-void CStreamOVisionView::OnWindowPosChanged(WINDOWPOS* lpwndpos)
-{
-	CFormView::OnWindowPosChanged(lpwndpos);
-
-}

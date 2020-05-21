@@ -16,6 +16,7 @@ class SqliteHandler
 
 		BOOL LoadAll();
 		std::vector<Station> GetStationMap();
+		BOOL GetPlaylist(int,int);
 		//void GetStation();
 		//void AddStation(); 
 		//void DeleteStation();
