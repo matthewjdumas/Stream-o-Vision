@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 #include "pch.h"
 #include "framework.h"
 // SHARED_HANDLERS can be defined in an ATL project implementing preview, thumbnail
@@ -18,7 +19,7 @@
 #include "Stream-O-VisionView.h"
 #include "AddStationDialog.h"
 
-#define sleep(x) Sleep(1000 * (x))
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -37,6 +38,7 @@ ON_BN_CLICKED(IDC_ADDMEDIA, &CStreamOVisionView::OnBnClickedAddmedia)
 ON_BN_CLICKED(IDC_DELETEMEDIA, &CStreamOVisionView::OnBnClickedDeletemedia)
 ON_BN_CLICKED(IDC_STOP, &CStreamOVisionView::OnBnClickedStop)
 ON_BN_CLICKED(IDC_DELETESTATION, &CStreamOVisionView::OnBnClickedDeletestation)
+ON_WM_WINDOWPOSCHANGED()
 END_MESSAGE_MAP()
 
 // CStreamOVisionView construction/destruction
@@ -44,10 +46,15 @@ END_MESSAGE_MAP()
 CStreamOVisionView::CStreamOVisionView() noexcept
 	: CFormView(IDD_STREAMOVISION_FORM)
 {
+	this->Database.OpenDatabase();
+	this->Database.LoadAll();
+	this->Stations = this->Database.GetStationMap();
+	
 }
 
 CStreamOVisionView::~CStreamOVisionView()
 {
+	this->Database.CloseDatabase();
 	for (auto station = Stations.begin(); station != Stations.end(); ++station) {
 		libvlc_release(station->vlcInstance);
 	}
@@ -74,6 +81,7 @@ void CStreamOVisionView::OnInitialUpdate()
 	CFormView::OnInitialUpdate();
 	GetParentFrame()->RecalcLayout();
 	ResizeParentToFit();
+	UpdateStations();
 
 }
 
@@ -114,7 +122,7 @@ char* CStreamOVisionView::ConvertCStringtoStr(CString input) {
 void CStreamOVisionView::UpdatePlaylistContents() {
 	PlaylistContents.ResetContent();
 	int index = StationList.GetCurSel();
-	for (auto media = Stations[index].Media.begin(); media != this->Stations[index].Media.end(); ++media) {
+	for (auto media = Stations[index].Media.begin(); media != Stations[index].Media.end(); ++media) {
 		PlaylistContents.AddString(media->Filename);
 	}
 }
@@ -171,8 +179,8 @@ void CStreamOVisionView::OnBnClickedDeletestation()
 
 void CStreamOVisionView::UpdateStations() {
 	StationList.ResetContent();
-	for (auto i = this->Stations.begin(); i != this->Stations.end(); ++i) {
-		StationList.AddString(i->StationName + " (" + i->StationId + ")");
+	for (auto station = Stations.begin(); station != Stations.end(); ++station) {
+		StationList.AddString(station->StationName + " (" + station->StationId + ")");
 	}
 }
 
@@ -221,6 +229,8 @@ void CStreamOVisionView::OnBnClickedStop()
 	libvlc_media_player_stop(Stations[StationList.GetCurSel()].vlcPlayer);
 	libvlc_media_player_release(Stations[StationList.GetCurSel()].vlcPlayer);
 }
+
+
 
 
 

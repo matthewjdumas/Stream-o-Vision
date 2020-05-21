@@ -7,6 +7,8 @@
 #ifndef PCH_H
 #define PCH_H
 
+#define sleep(x) Sleep(1000 * (x))
+
 // add headers that you want to pre-compile here
 #include "framework.h"
 #include <vlc/vlc.h>
@@ -31,12 +33,14 @@ struct Station {
 	std::vector<MediaItem> Media; 
 	CString StationName; 
 	CString StationId; 
+	int dbStationId;
 	unsigned int MediaCurrentIndex; 
 	libvlc_instance_t* vlcInstance;
 	libvlc_media_player_t* vlcPlayer;
 	libvlc_media_t* vlcMedia;
 
 	Station() {
+		this->dbStationId = -1;
 		this->StationId = "";
 		this->StationName = "";
 		this->MediaCurrentIndex = 0;
