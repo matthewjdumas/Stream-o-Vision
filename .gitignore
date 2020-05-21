@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+/.vs/Stream-O-Vision/v16
+/Debug
+/packages/VideoLAN.LibVLC.Windows.3.0.10
+/Stream-O-Vision/Debug
