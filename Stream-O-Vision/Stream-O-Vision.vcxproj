@@ -91,14 +91,14 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>C:\Repos\Stream-O-Vision\Stream-O-Vision\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>C:\Repos\Stream-O-Vision\Stream-O-Vision\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libvlc.lib;libvlccore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libvlc.lib;libvlccore.lib;sqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -195,6 +195,7 @@ xcopy /y /d "$(ProjectDir)db_seed\*" "$(OutDir)" /E /H</Command>
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="SqliteHandler.h" />
     <ClInclude Include="Stream-O-Vision.h" />
     <ClInclude Include="Stream-O-VisionDoc.h" />
     <ClInclude Include="Stream-O-VisionView.h" />
@@ -209,6 +210,7 @@ xcopy /y /d "$(ProjectDir)db_seed\*" "$(OutDir)" /E /H</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SqliteHandler.cpp" />
     <ClCompile Include="Stream-O-Vision.cpp" />
     <ClCompile Include="Stream-O-VisionDoc.cpp" />
     <ClCompile Include="Stream-O-VisionView.cpp" />

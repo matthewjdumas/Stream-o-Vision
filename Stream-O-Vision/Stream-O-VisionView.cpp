@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 #include "pch.h"
 #include "framework.h"
 // SHARED_HANDLERS can be defined in an ATL project implementing preview, thumbnail
@@ -18,7 +19,7 @@
 #include "Stream-O-VisionView.h"
 #include "AddStationDialog.h"
 
-#define sleep(x) Sleep(1000 * (x))
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -37,6 +38,7 @@ ON_BN_CLICKED(IDC_ADDMEDIA, &CStreamOVisionView::OnBnClickedAddmedia)
 ON_BN_CLICKED(IDC_DELETEMEDIA, &CStreamOVisionView::OnBnClickedDeletemedia)
 ON_BN_CLICKED(IDC_STOP, &CStreamOVisionView::OnBnClickedStop)
 ON_BN_CLICKED(IDC_DELETESTATION, &CStreamOVisionView::OnBnClickedDeletestation)
+ON_WM_WINDOWPOSCHANGED()
 END_MESSAGE_MAP()
 
 // CStreamOVisionView construction/destruction
@@ -44,10 +46,15 @@ END_MESSAGE_MAP()
 CStreamOVisionView::CStreamOVisionView() noexcept
 	: CFormView(IDD_STREAMOVISION_FORM)
 {
+	this->m_database.OpenDatabase();
+	this->m_database.LoadAll();
+	Stations = this->m_database.GetStationMap();
+	
 }
 
 CStreamOVisionView::~CStreamOVisionView()
 {
+	this->m_database.CloseDatabase();
 	for (auto station = Stations.begin(); station != Stations.end(); ++station) {
 		libvlc_release(station->vlcInstance);
 	}
@@ -224,3 +231,15 @@ void CStreamOVisionView::OnBnClickedStop()
 
 
 
+
+
+void CStreamOVisionView::OnUpdate(CView* /*pSender*/, LPARAM /*lHint*/, CObject* /*pHint*/)
+{
+}
+
+
+void CStreamOVisionView::OnWindowPosChanged(WINDOWPOS* lpwndpos)
+{
+	CFormView::OnWindowPosChanged(lpwndpos);
+
+}
