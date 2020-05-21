@@ -132,7 +132,7 @@ void CStreamOVisionView::OnBnClickedPlay()
 	int stationIndex = StationList.GetCurSel(); 
 
 	Stations[stationIndex].vlcPlayer = libvlc_media_player_new_from_media(Stations[stationIndex].vlcMedia);
-	Stations[stationIndex].vlcPlayer.
+
 	libvlc_media_release(Stations[stationIndex].vlcMedia);
 	libvlc_media_player_play(Stations[stationIndex].vlcPlayer);
 }
