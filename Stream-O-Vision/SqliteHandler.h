@@ -20,6 +20,7 @@ class SqliteHandler
 		BOOL GetPlaylist(int,int);
 
 		int AddStation(std::string, std::string);
+		BOOL DeleteStation(int);
 		//void GetStation();
 		//void AddStation(); 
 		//void DeleteStation();

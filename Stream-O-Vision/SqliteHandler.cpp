@@ -102,3 +102,18 @@ int SqliteHandler::AddStation(std::string StationId, std::string StationName) {
 
 	return sqlite3_last_insert_rowid(this->m_sqliteDb);
 }
+
+BOOL SqliteHandler::DeleteStation(int dbStationId) {
+	std::string query = "DELETE FROM stations WHERE id=" + std::to_string(dbStationId) + ";";
+	char* err;
+
+	this->m_sqliteReturnCode = sqlite3_exec(this->m_sqliteDb, query.c_str(), NULL, NULL, &err);
+	if (this->m_sqliteReturnCode) {
+		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
+		fprintf(stdout, "Can't open database: %s\n", sqlite3_errmsg(this->m_sqliteDb));
+		sqlite3_free(err);
+		return false;
+	}
+
+	return true;
+}

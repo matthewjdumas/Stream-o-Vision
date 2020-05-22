@@ -178,6 +178,9 @@ void CStreamOVisionView::OnBnClickedAddstation()
 void CStreamOVisionView::OnBnClickedDeletestation()
 {
 	if (StationList.GetCurSel() != LB_ERR) {
+		int dbId = Stations[StationList.GetCurSel()].dbStationId; 
+		Database.DeleteStation(dbId);
+		//TODO: Loop through playlist and delete each
 		Stations.erase(StationList.GetCurSel() + Stations.begin());
 		UpdateStations();
 	}
