@@ -167,7 +167,8 @@ void CStreamOVisionView::OnBnClickedAddstation()
 		newStation.StationId = newStationDlg.GetStationId();
 		newStation.StationName = newStationDlg.GetStationName();
 		newStation.vlcInstance = libvlc_new(0, NULL);
-		Database.AddStation(CStringToStdString(newStation.StationId), CStringToStdString(newStation.StationName));
+		int rowId = Database.AddStation(CStringToStdString(newStation.StationId), CStringToStdString(newStation.StationName));
+		newStation.dbStationId = rowId;
 		Stations.push_back(newStation);
 		UpdateStations();
 	}
