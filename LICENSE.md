@@ -12,7 +12,7 @@
   - Sell binaries made from this code 
   - Rebrand this code and sell it 
 
-p Put simply, I want people to be able to use this code and have fun with it. I do not want people to make money off of it. I have no plans currently to commercialize it.\
+p Put simply, I want people to be able to use this code and have fun with it. I do not want people to make money off of it. I have no plans currently to commercialize it.
 
 > I am not responsible for anything that results from the use of this software. You take full responsibility for your own use of the software. 
 
