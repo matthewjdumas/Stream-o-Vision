@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include <string>
 
 class CMainFrame : public CFrameWnd
 {
@@ -13,7 +14,7 @@ protected: // create from serialization only
 
 // Attributes
 public:
-
+	std::string statusMsg;
 // Operations
 public:
 
@@ -36,6 +37,7 @@ protected:  // control bar embedded members
 // Generated message map functions
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnUpdatePage(CCmdUI* pCmdUI);
 	DECLARE_MESSAGE_MAP()
 
 };

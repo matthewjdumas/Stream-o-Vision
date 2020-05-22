@@ -120,10 +120,12 @@ char* CStreamOVisionView::ConvertCStringtoStr(CString input) {
 
 
 void CStreamOVisionView::UpdatePlaylistContents() {
-	PlaylistContents.ResetContent();
-	int index = StationList.GetCurSel();
-	for (auto media = Stations[index].Media.begin(); media != Stations[index].Media.end(); ++media) {
-		PlaylistContents.AddString(media->Filename);
+	if (StationList.GetCurSel() != LB_ERR) {
+		int index = StationList.GetCurSel();
+		PlaylistContents.ResetContent();
+		for (auto media = Stations[index].Media.begin(); media != Stations[index].Media.end(); ++media) {
+			PlaylistContents.AddString(media->Filename);
+		}
 	}
 }
 
@@ -148,10 +150,12 @@ void CStreamOVisionView::OnBnClickedPlay()
 
 void CStreamOVisionView::OnLbnSelchangePlaylist()
 {
-	int stationIndex = StationList.GetCurSel();
-	CString cStrVid = Stations[stationIndex].Media[PlaylistContents.GetCurSel()].Path;
-	char* strVid = ConvertCStringtoStr(cStrVid.GetString());
-	Stations[stationIndex].vlcMedia = libvlc_media_new_path(Stations[stationIndex].vlcInstance, strVid);
+	if (StationList.GetCurSel() != LB_ERR && PlaylistContents.GetCurSel() != LB_ERR) {
+		int stationIndex = StationList.GetCurSel();
+		CString cStrVid = Stations[stationIndex].Media[PlaylistContents.GetCurSel()].Path;
+		char* strVid = ConvertCStringtoStr(cStrVid.GetString());
+		Stations[stationIndex].vlcMedia = libvlc_media_new_path(Stations[stationIndex].vlcInstance, strVid);
+	}
 }
 
 
@@ -163,6 +167,7 @@ void CStreamOVisionView::OnBnClickedAddstation()
 		newStation.StationId = newStationDlg.GetStationId();
 		newStation.StationName = newStationDlg.GetStationName();
 		newStation.vlcInstance = libvlc_new(0, NULL);
+		Database.AddStation(CStringToStdString(newStation.StationId), CStringToStdString(newStation.StationName));
 		Stations.push_back(newStation);
 		UpdateStations();
 	}
@@ -230,7 +235,12 @@ void CStreamOVisionView::OnBnClickedStop()
 	libvlc_media_player_release(Stations[StationList.GetCurSel()].vlcPlayer);
 }
 
-
+std::string CStreamOVisionView::CStringToStdString(CString input) {
+	CString cStr(input);
+	CT2CA ctConvStr(cStr);
+	std::string output(ctConvStr);
+	return output;
+}
 
 
 

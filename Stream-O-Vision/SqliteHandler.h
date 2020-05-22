@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sqlite3.h>
+#include <string>
 
 class SqliteHandler
 {
@@ -17,6 +18,8 @@ class SqliteHandler
 		BOOL LoadAll();
 		std::vector<Station> GetStationMap();
 		BOOL GetPlaylist(int,int);
+
+		int AddStation(std::string, std::string);
 		//void GetStation();
 		//void AddStation(); 
 		//void DeleteStation();
@@ -25,6 +28,13 @@ class SqliteHandler
 		//void UpdateSchedule(); 
 		//void DeleteSchedule();
 		//void CreateSchedule(); 
+
+
+		SqliteHandler() {
+			m_sqliteDb = NULL;
+			m_sqliteReturnCode = 0;
+			m_lastError = "";
+		}
 
 };
 

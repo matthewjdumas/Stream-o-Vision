@@ -49,6 +49,8 @@ BOOL SqliteHandler::LoadAll() {
 		GetPlaylist(station->dbStationId,index);
 		index++;
 	}
+
+	return true;
 }
 
 std::vector<Station> SqliteHandler::GetStationMap() {
@@ -82,4 +84,21 @@ BOOL SqliteHandler::GetPlaylist(int id, int index) {
 	}
 
 	sqlite3_free_table(results);
+
+	return true;
+}
+
+int SqliteHandler::AddStation(std::string StationId, std::string StationName) {
+	std::string query = "INSERT INTO stations (StationId, StationName) VALUES ('" + StationId + "','" + StationName + "');";
+	char* err;
+	
+	this->m_sqliteReturnCode = sqlite3_exec(this->m_sqliteDb, query.c_str(), NULL, NULL, &err);
+	if (this->m_sqliteReturnCode) {
+		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
+		fprintf(stdout, "Can't open database: %s\n", sqlite3_errmsg(this->m_sqliteDb));
+		sqlite3_free(err);
+		return -1;
+	}
+
+	return sqlite3_last_insert_rowid(this->m_sqliteDb);
 }

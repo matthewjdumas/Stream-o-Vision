@@ -18,6 +18,7 @@ IMPLEMENT_DYNCREATE(CMainFrame, CFrameWnd)
 
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_WM_CREATE()
+	ON_UPDATE_COMMAND_UI(ID_STATUS_PAGE, &CMainFrame::OnUpdatePage)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -26,6 +27,7 @@ static UINT indicators[] =
 	ID_INDICATOR_CAPS,
 	ID_INDICATOR_NUM,
 	ID_INDICATOR_SCRL,
+	ID_STATUS_PAGE,
 };
 
 // CMainFrame construction/destruction
@@ -94,3 +96,9 @@ void CMainFrame::Dump(CDumpContext& dc) const
 
 // CMainFrame message handlers
 
+afx_msg void CMainFrame::OnUpdatePage(CCmdUI* pCmdUI) {
+	pCmdUI->Enable();
+	CString strPage;
+	strPage.Format(_T("%s"), this->statusMsg);
+	pCmdUI->SetText(strPage);
+}
