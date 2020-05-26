@@ -25,6 +25,8 @@ class SqliteHandler
 		BOOL DeletePlaylistItemById(int);
 		int AddPlaylistItem(std::string, std::string, int);
 
+		BOOL CreateTables();
+
 		SqliteHandler() {
 			m_sqliteDb = NULL;
 			m_sqliteReturnCode = 0;

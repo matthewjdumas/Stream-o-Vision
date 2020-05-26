@@ -161,3 +161,27 @@ int SqliteHandler::AddPlaylistItem(std::string filename, std::string path, int d
 
 	return sqlite3_last_insert_rowid(this->m_sqliteDb);
 }
+
+BOOL SqliteHandler::CreateTables() {
+	std::string query = "CREATE TABLE \"playlists\" (\"id\" INTEGER PRIMARY KEY AUTOINCREMENT,\"fk_stations_id\" INTEGER,\"Filename\" TEXT,\"Path\" TEXT)";
+	char* err;
+
+	this->m_sqliteReturnCode = sqlite3_exec(this->m_sqliteDb, query.c_str(), NULL, NULL, &err);
+	if (this->m_sqliteReturnCode) {
+		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
+		TRACE("Error in CreateTables() Table 1: ", errMsg);
+		sqlite3_free(err);
+		return FALSE;
+	}
+
+	query = "CREATE TABLE \"stations\" (\"id\" INTEGER PRIMARY KEY AUTOINCREMENT,\"StationId\" TEXT NOT NULL UNIQUE,\"StationName\" INTEGER)";
+	this->m_sqliteReturnCode = sqlite3_exec(this->m_sqliteDb, query.c_str(), NULL, NULL, &err);
+	if (this->m_sqliteReturnCode) {
+		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
+		TRACE("Error in CreateTables() Table 1: ", errMsg);
+		sqlite3_free(err);
+		return FALSE;
+	}
+
+	return TRUE;
+}
