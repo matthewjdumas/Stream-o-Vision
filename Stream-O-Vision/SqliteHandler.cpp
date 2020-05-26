@@ -10,7 +10,6 @@
 
 int SqliteHandler::OpenDatabase() {
 	const char* cCurrentDir = "..\\Debug\\streamovision.db";  // TODO: Need to figure out how to do this without hardcoding paths
-
 	return sqlite3_open(cCurrentDir,&this->m_sqliteDb);
 }
 
@@ -27,7 +26,7 @@ BOOL SqliteHandler::LoadAll() {
 
 	if (this->m_sqliteReturnCode) {
 		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
-		fprintf(stdout, "Can't open database: %s\n", sqlite3_errmsg(this->m_sqliteDb));
+		TRACE( "Error in LoadALL(): ", errMsg );
 		sqlite3_free(err);
 		return false;
 	}
@@ -49,6 +48,8 @@ BOOL SqliteHandler::LoadAll() {
 		GetPlaylist(station->dbStationId,index);
 		index++;
 	}
+
+	return true;
 }
 
 std::vector<Station> SqliteHandler::GetStationMap() {
@@ -67,7 +68,7 @@ BOOL SqliteHandler::GetPlaylist(int id, int index) {
 
 	if (this->m_sqliteReturnCode) {
 		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
-		fprintf(stdout, "Can't open database: %s\n", sqlite3_errmsg(this->m_sqliteDb));
+		TRACE("Error in GetPlaylist(): ", errMsg);
 		sqlite3_free(err);
 		return false;
 	}
@@ -82,4 +83,105 @@ BOOL SqliteHandler::GetPlaylist(int id, int index) {
 	}
 
 	sqlite3_free_table(results);
+
+	return true;
+}
+
+int SqliteHandler::AddStation(std::string StationId, std::string StationName) {
+	std::string query = "INSERT INTO stations (StationId, StationName) VALUES ('" + StationId + "','" + StationName + "');";
+	char* err;
+	
+	this->m_sqliteReturnCode = sqlite3_exec(this->m_sqliteDb, query.c_str(), NULL, NULL, &err);
+	if (this->m_sqliteReturnCode) {
+		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
+		TRACE("Error in AddStation(): ", errMsg);
+		sqlite3_free(err);
+		return -1;
+	}
+
+	return sqlite3_last_insert_rowid(this->m_sqliteDb);
+}
+
+BOOL SqliteHandler::DeleteStation(int dbStationId) {
+	std::string query = "DELETE FROM stations WHERE id=" + std::to_string(dbStationId) + ";";
+	char* err;
+
+	this->m_sqliteReturnCode = sqlite3_exec(this->m_sqliteDb, query.c_str(), NULL, NULL, &err);
+	if (this->m_sqliteReturnCode) {
+		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
+		TRACE("Error in DeleteStation(): ", errMsg);
+		sqlite3_free(err);
+		return false;
+	}
+
+	return true;
+}
+
+BOOL SqliteHandler::DeletePlaylistByStationId(int dbStationId) {
+	std::string query = "DELETE FROM playlists WHERE fk_stations_id=" + std::to_string(dbStationId) + ";";
+	char* err;
+
+	this->m_sqliteReturnCode = sqlite3_exec(this->m_sqliteDb, query.c_str(), NULL, NULL, &err);
+	if (this->m_sqliteReturnCode) {
+		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
+		TRACE("Error in DeletePlaylistByStationId(): ", errMsg);
+		sqlite3_free(err);
+		return false;
+	}
+
+	return true;
+}
+
+BOOL SqliteHandler::DeletePlaylistItemById(int dbPlaylistId) {
+	std::string query = "DELETE FROM playlists WHERE id=" + std::to_string(dbPlaylistId) + ";";
+	char* err;
+
+	this->m_sqliteReturnCode = sqlite3_exec(this->m_sqliteDb, query.c_str(), NULL, NULL, &err);
+	if (this->m_sqliteReturnCode) {
+		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
+		TRACE("Error in DeletePlaylistItemById(): ", errMsg);
+		sqlite3_free(err);
+		return false;
+	}
+
+	return true;
+}
+
+int SqliteHandler::AddPlaylistItem(std::string filename, std::string path, int dbStationId) {
+	std::string query = "INSERT INTO playlists (Filename, Path, fk_stations_id) VALUES ('" + filename + "','" + path + "',"+ std::to_string(dbStationId) +");";
+	char* err;
+
+	this->m_sqliteReturnCode = sqlite3_exec(this->m_sqliteDb, query.c_str(), NULL, NULL, &err);
+	if (this->m_sqliteReturnCode) {
+		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
+		TRACE("Error in AddPlaylistItem(): ", errMsg);
+		sqlite3_free(err);
+		return -1;
+	}
+
+	return sqlite3_last_insert_rowid(this->m_sqliteDb);
+}
+
+BOOL SqliteHandler::CreateTables() {
+	std::string query = "CREATE TABLE \"playlists\" (\"id\" INTEGER PRIMARY KEY AUTOINCREMENT,\"fk_stations_id\" INTEGER,\"Filename\" TEXT,\"Path\" TEXT)";
+	char* err;
+
+	this->m_sqliteReturnCode = sqlite3_exec(this->m_sqliteDb, query.c_str(), NULL, NULL, &err);
+	if (this->m_sqliteReturnCode) {
+		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
+		TRACE("Error in CreateTables() Table 1: ", errMsg);
+		sqlite3_free(err);
+		return FALSE;
+	}
+
+	query = "CREATE TABLE \"stations\" (\"id\" INTEGER PRIMARY KEY AUTOINCREMENT,\"StationId\" TEXT NOT NULL UNIQUE,\"StationName\" INTEGER)";
+	this->m_sqliteReturnCode = sqlite3_exec(this->m_sqliteDb, query.c_str(), NULL, NULL, &err);
+	if (this->m_sqliteReturnCode) {
+		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
+		TRACE("Error in CreateTables() Table 1: ", errMsg);
+		sqlite3_free(err);
+		return FALSE;
+	}
+
+	return TRUE;
 }

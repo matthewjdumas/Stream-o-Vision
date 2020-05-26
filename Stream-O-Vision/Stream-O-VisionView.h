@@ -50,6 +50,7 @@ public:
 	char* ConvertCStringtoStr(CString input);
 	void UpdatePlaylistContents();
 	void UpdateStations();
+	std::string CStringToStdString(CString);
 	
 
 	afx_msg void OnBnClickedPlay();
