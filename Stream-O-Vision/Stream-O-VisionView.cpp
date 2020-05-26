@@ -18,6 +18,7 @@
 #include "Stream-O-VisionDoc.h"
 #include "Stream-O-VisionView.h"
 #include "AddStationDialog.h"
+#include "vlcpp/vlc.hpp"
 
 
 
@@ -55,10 +56,7 @@ CStreamOVisionView::CStreamOVisionView() noexcept
 CStreamOVisionView::~CStreamOVisionView()
 {
 	this->Database.CloseDatabase();
-	for (auto station = Stations.begin(); station != Stations.end(); ++station) {
-		libvlc_release(station->vlcInstance);
-	}
-	
+
 }
 
 void CStreamOVisionView::DoDataExchange(CDataExchange* pDX)
@@ -70,9 +68,6 @@ void CStreamOVisionView::DoDataExchange(CDataExchange* pDX)
 
 BOOL CStreamOVisionView::PreCreateWindow(CREATESTRUCT& cs)
 {
-	// TODO: Modify the Window class or styles here by modifying
-	//  the CREATESTRUCT cs
-
 	return CFormView::PreCreateWindow(cs);
 }
 
@@ -140,11 +135,12 @@ void CStreamOVisionView::OnBnClickedPlay()
 		OnLbnSelchangePlaylist();
 	}
 	int stationIndex = StationList.GetCurSel(); 
+	Stations[stationIndex].vlcPlayer = VLC::MediaPlayer(Stations[stationIndex].vlcMedia);
+		
+	Stations[stationIndex].vlcPlayer.play();
+		
+	//std::this_thread::sleep_for(std::chrono::seconds(10));   // how to do a sleep!
 
-	Stations[stationIndex].vlcPlayer = libvlc_media_player_new_from_media(Stations[stationIndex].vlcMedia);
-
-	libvlc_media_release(Stations[stationIndex].vlcMedia);
-	libvlc_media_player_play(Stations[stationIndex].vlcPlayer);
 }
 
 
@@ -154,7 +150,7 @@ void CStreamOVisionView::OnLbnSelchangePlaylist()
 		int stationIndex = StationList.GetCurSel();
 		CString cStrVid = Stations[stationIndex].Media[PlaylistContents.GetCurSel()].Path;
 		char* strVid = ConvertCStringtoStr(cStrVid.GetString());
-		Stations[stationIndex].vlcMedia = libvlc_media_new_path(Stations[stationIndex].vlcInstance, strVid);
+		Stations[stationIndex].vlcMedia = VLC::Media(Stations[stationIndex].vlcInstance, strVid, VLC::Media::FromPath);
 	}
 }
 
@@ -166,7 +162,7 @@ void CStreamOVisionView::OnBnClickedAddstation()
 		Station newStation = Station(); 
 		newStation.StationId = newStationDlg.GetStationId();
 		newStation.StationName = newStationDlg.GetStationName();
-		newStation.vlcInstance = libvlc_new(0, NULL);
+		newStation.vlcInstance = VLC::Instance(0, nullptr);
 		int rowId = Database.AddStation(CStringToStdString(newStation.StationId), CStringToStdString(newStation.StationName));
 		newStation.dbStationId = rowId;
 		Stations.push_back(newStation);
@@ -241,8 +237,9 @@ void CStreamOVisionView::OnBnClickedDeletemedia()
 
 void CStreamOVisionView::OnBnClickedStop()
 {
-	libvlc_media_player_stop(Stations[StationList.GetCurSel()].vlcPlayer);
-	libvlc_media_player_release(Stations[StationList.GetCurSel()].vlcPlayer);
+	if (StationList.GetCurSel() != LB_ERR) {
+		Stations[StationList.GetCurSel()].vlcPlayer.stop();
+	}
 }
 
 std::string CStreamOVisionView::CStringToStdString(CString input) {

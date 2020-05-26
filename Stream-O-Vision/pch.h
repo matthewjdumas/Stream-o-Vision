@@ -8,10 +8,11 @@
 #define PCH_H
 
 #define sleep(x) Sleep(1000 * (x))
+typedef long int ssize_t;   // Need this for libvlcpp bindings to work right for some reason
 
 // add headers that you want to pre-compile here
 #include "framework.h"
-#include <vlc/vlc.h>
+#include <vlcpp/vlc.hpp>
 #include <vector>
 
 struct MediaItem {
@@ -38,16 +39,16 @@ struct Station {
 	CString StationId; 
 	int dbStationId;
 	unsigned int MediaCurrentIndex; 
-	libvlc_instance_t* vlcInstance;
-	libvlc_media_player_t* vlcPlayer;
-	libvlc_media_t* vlcMedia;
+	VLC::Instance vlcInstance;
+	VLC::MediaPlayer vlcPlayer;
+	VLC::Media vlcMedia;
 
 	Station() {
 		this->dbStationId = -1;
 		this->StationId = "";
 		this->StationName = "";
 		this->MediaCurrentIndex = 0;
-		this->vlcInstance = libvlc_new(0, NULL);       // create vlc instance
+		this->vlcInstance = VLC::Instance(0, nullptr);       
 	}
 };
 
