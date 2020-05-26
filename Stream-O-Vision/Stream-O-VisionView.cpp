@@ -46,10 +46,10 @@ END_MESSAGE_MAP()
 CStreamOVisionView::CStreamOVisionView() noexcept
 	: CFormView(IDD_STREAMOVISION_FORM)
 {
-	this->Database.OpenDatabase();
+	int err = this->Database.OpenDatabase();
+	TRACE("Database Open return value: ", err);
 	this->Database.LoadAll();
-	this->Stations = this->Database.GetStationMap();
-	
+	this->Stations = this->Database.GetStationMap();	
 }
 
 CStreamOVisionView::~CStreamOVisionView()
@@ -111,7 +111,7 @@ char* CStreamOVisionView::ConvertCStringtoStr(CString input) {
 	char* nstringw = new char[newsizew];
 	size_t convertedCharsw = 0;
 	wcstombs_s(&convertedCharsw, nstringw, newsizew, input, _TRUNCATE);
-
+	TRACE("Converted CString as Str: ", nstringw);
 	return nstringw;
 }
 

@@ -25,11 +25,6 @@ class SqliteHandler
 		BOOL DeletePlaylistItemById(int);
 		int AddPlaylistItem(std::string, std::string, int);
 
-		//void GetSchedule(); 
-		//void UpdateSchedule(); 
-		//void DeleteSchedule();
-		//void CreateSchedule(); 
-
 		SqliteHandler() {
 			m_sqliteDb = NULL;
 			m_sqliteReturnCode = 0;

@@ -10,7 +10,6 @@
 
 int SqliteHandler::OpenDatabase() {
 	const char* cCurrentDir = "..\\Debug\\streamovision.db";  // TODO: Need to figure out how to do this without hardcoding paths
-
 	return sqlite3_open(cCurrentDir,&this->m_sqliteDb);
 }
 
@@ -27,7 +26,7 @@ BOOL SqliteHandler::LoadAll() {
 
 	if (this->m_sqliteReturnCode) {
 		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
-		fprintf(stdout, "Can't open database: %s\n", sqlite3_errmsg(this->m_sqliteDb));
+		TRACE( "Error in LoadALL(): ", errMsg );
 		sqlite3_free(err);
 		return false;
 	}
@@ -69,7 +68,7 @@ BOOL SqliteHandler::GetPlaylist(int id, int index) {
 
 	if (this->m_sqliteReturnCode) {
 		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
-		fprintf(stdout, "Can't open database: %s\n", sqlite3_errmsg(this->m_sqliteDb));
+		TRACE("Error in GetPlaylist(): ", errMsg);
 		sqlite3_free(err);
 		return false;
 	}
@@ -95,7 +94,7 @@ int SqliteHandler::AddStation(std::string StationId, std::string StationName) {
 	this->m_sqliteReturnCode = sqlite3_exec(this->m_sqliteDb, query.c_str(), NULL, NULL, &err);
 	if (this->m_sqliteReturnCode) {
 		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
-		fprintf(stdout, "Can't open database: %s\n", sqlite3_errmsg(this->m_sqliteDb));
+		TRACE("Error in AddStation(): ", errMsg);
 		sqlite3_free(err);
 		return -1;
 	}
@@ -110,7 +109,7 @@ BOOL SqliteHandler::DeleteStation(int dbStationId) {
 	this->m_sqliteReturnCode = sqlite3_exec(this->m_sqliteDb, query.c_str(), NULL, NULL, &err);
 	if (this->m_sqliteReturnCode) {
 		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
-		fprintf(stdout, "Can't open database: %s\n", sqlite3_errmsg(this->m_sqliteDb));
+		TRACE("Error in DeleteStation(): ", errMsg);
 		sqlite3_free(err);
 		return false;
 	}
@@ -125,7 +124,7 @@ BOOL SqliteHandler::DeletePlaylistByStationId(int dbStationId) {
 	this->m_sqliteReturnCode = sqlite3_exec(this->m_sqliteDb, query.c_str(), NULL, NULL, &err);
 	if (this->m_sqliteReturnCode) {
 		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
-		fprintf(stdout, "Can't open database: %s\n", sqlite3_errmsg(this->m_sqliteDb));
+		TRACE("Error in DeletePlaylistByStationId(): ", errMsg);
 		sqlite3_free(err);
 		return false;
 	}
@@ -140,7 +139,7 @@ BOOL SqliteHandler::DeletePlaylistItemById(int dbPlaylistId) {
 	this->m_sqliteReturnCode = sqlite3_exec(this->m_sqliteDb, query.c_str(), NULL, NULL, &err);
 	if (this->m_sqliteReturnCode) {
 		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
-		fprintf(stdout, "Can't open database: %s\n", sqlite3_errmsg(this->m_sqliteDb));
+		TRACE("Error in DeletePlaylistItemById(): ", errMsg);
 		sqlite3_free(err);
 		return false;
 	}
@@ -155,7 +154,7 @@ int SqliteHandler::AddPlaylistItem(std::string filename, std::string path, int d
 	this->m_sqliteReturnCode = sqlite3_exec(this->m_sqliteDb, query.c_str(), NULL, NULL, &err);
 	if (this->m_sqliteReturnCode) {
 		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
-		fprintf(stdout, "Can't open database: %s\n", sqlite3_errmsg(this->m_sqliteDb));
+		TRACE("Error in AddPlaylistItem(): ", errMsg);
 		sqlite3_free(err);
 		return -1;
 	}
