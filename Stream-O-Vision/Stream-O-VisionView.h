@@ -3,7 +3,7 @@
 //
 
 #pragma once
-
+#include "SqliteHandler.h"
 
 class CStreamOVisionView : public CFormView
 {
@@ -46,9 +46,11 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	std::vector<Station> Stations;
+	SqliteHandler Database;
 	char* ConvertCStringtoStr(CString input);
 	void UpdatePlaylistContents();
 	void UpdateStations();
+	std::string CStringToStdString(CString);
 	
 
 	afx_msg void OnBnClickedPlay();
@@ -62,6 +64,7 @@ public:
 	afx_msg void OnBnClickedStop();
 	CListBox StationList;
 	afx_msg void OnBnClickedDeletestation();
+
 };
 
 #ifndef _DEBUG  // debug version in Stream-O-VisionView.cpp

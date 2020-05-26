@@ -8,6 +8,7 @@
 #define IDP_SOCKETS_INIT_FAILED         104
 #define IDR_MAINFRAME                   128
 #define IDR_StreamStationTYPE           130
+#define ID_STATUS_PAGE                  310
 #define IDD_DIALOG1                     319
 #define IDC_VLCPLUGIN1                  1001
 #define IDC_BUTTON1                     1002
@@ -30,7 +31,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        321
 #define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1014
-#define _APS_NEXT_SYMED_VALUE           310
+#define _APS_NEXT_CONTROL_VALUE         1015
+#define _APS_NEXT_SYMED_VALUE           311
 #endif
 #endif

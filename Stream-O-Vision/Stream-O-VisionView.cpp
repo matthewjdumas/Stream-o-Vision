@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 #include "pch.h"
 #include "framework.h"
 // SHARED_HANDLERS can be defined in an ATL project implementing preview, thumbnail
@@ -18,7 +19,7 @@
 #include "Stream-O-VisionView.h"
 #include "AddStationDialog.h"
 
-#define sleep(x) Sleep(1000 * (x))
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -37,6 +38,7 @@ ON_BN_CLICKED(IDC_ADDMEDIA, &CStreamOVisionView::OnBnClickedAddmedia)
 ON_BN_CLICKED(IDC_DELETEMEDIA, &CStreamOVisionView::OnBnClickedDeletemedia)
 ON_BN_CLICKED(IDC_STOP, &CStreamOVisionView::OnBnClickedStop)
 ON_BN_CLICKED(IDC_DELETESTATION, &CStreamOVisionView::OnBnClickedDeletestation)
+ON_WM_WINDOWPOSCHANGED()
 END_MESSAGE_MAP()
 
 // CStreamOVisionView construction/destruction
@@ -44,10 +46,15 @@ END_MESSAGE_MAP()
 CStreamOVisionView::CStreamOVisionView() noexcept
 	: CFormView(IDD_STREAMOVISION_FORM)
 {
+	int err = this->Database.OpenDatabase();
+	TRACE("Database Open return value: ", err);
+	this->Database.LoadAll();
+	this->Stations = this->Database.GetStationMap();	
 }
 
 CStreamOVisionView::~CStreamOVisionView()
 {
+	this->Database.CloseDatabase();
 	for (auto station = Stations.begin(); station != Stations.end(); ++station) {
 		libvlc_release(station->vlcInstance);
 	}
@@ -74,6 +81,7 @@ void CStreamOVisionView::OnInitialUpdate()
 	CFormView::OnInitialUpdate();
 	GetParentFrame()->RecalcLayout();
 	ResizeParentToFit();
+	UpdateStations();
 
 }
 
@@ -103,7 +111,7 @@ char* CStreamOVisionView::ConvertCStringtoStr(CString input) {
 	char* nstringw = new char[newsizew];
 	size_t convertedCharsw = 0;
 	wcstombs_s(&convertedCharsw, nstringw, newsizew, input, _TRUNCATE);
-
+	TRACE("Converted CString as Str: ", nstringw);
 	return nstringw;
 }
 
@@ -112,10 +120,12 @@ char* CStreamOVisionView::ConvertCStringtoStr(CString input) {
 
 
 void CStreamOVisionView::UpdatePlaylistContents() {
-	PlaylistContents.ResetContent();
-	int index = StationList.GetCurSel();
-	for (auto media = Stations[index].Media.begin(); media != this->Stations[index].Media.end(); ++media) {
-		PlaylistContents.AddString(media->Filename);
+	if (StationList.GetCurSel() != LB_ERR) {
+		int index = StationList.GetCurSel();
+		PlaylistContents.ResetContent();
+		for (auto media = Stations[index].Media.begin(); media != Stations[index].Media.end(); ++media) {
+			PlaylistContents.AddString(media->Filename);
+		}
 	}
 }
 
@@ -140,10 +150,12 @@ void CStreamOVisionView::OnBnClickedPlay()
 
 void CStreamOVisionView::OnLbnSelchangePlaylist()
 {
-	int stationIndex = StationList.GetCurSel();
-	CString cStrVid = Stations[stationIndex].Media[PlaylistContents.GetCurSel()].Path;
-	char* strVid = ConvertCStringtoStr(cStrVid.GetString());
-	Stations[stationIndex].vlcMedia = libvlc_media_new_path(Stations[stationIndex].vlcInstance, strVid);
+	if (StationList.GetCurSel() != LB_ERR && PlaylistContents.GetCurSel() != LB_ERR) {
+		int stationIndex = StationList.GetCurSel();
+		CString cStrVid = Stations[stationIndex].Media[PlaylistContents.GetCurSel()].Path;
+		char* strVid = ConvertCStringtoStr(cStrVid.GetString());
+		Stations[stationIndex].vlcMedia = libvlc_media_new_path(Stations[stationIndex].vlcInstance, strVid);
+	}
 }
 
 
@@ -155,6 +167,8 @@ void CStreamOVisionView::OnBnClickedAddstation()
 		newStation.StationId = newStationDlg.GetStationId();
 		newStation.StationName = newStationDlg.GetStationName();
 		newStation.vlcInstance = libvlc_new(0, NULL);
+		int rowId = Database.AddStation(CStringToStdString(newStation.StationId), CStringToStdString(newStation.StationName));
+		newStation.dbStationId = rowId;
 		Stations.push_back(newStation);
 		UpdateStations();
 	}
@@ -164,15 +178,19 @@ void CStreamOVisionView::OnBnClickedAddstation()
 void CStreamOVisionView::OnBnClickedDeletestation()
 {
 	if (StationList.GetCurSel() != LB_ERR) {
+		int dbId = Stations[StationList.GetCurSel()].dbStationId; 
+		Database.DeleteStation(dbId);
+		Database.DeletePlaylistByStationId(dbId);
 		Stations.erase(StationList.GetCurSel() + Stations.begin());
 		UpdateStations();
+		PlaylistContents.ResetContent();
 	}
 }
 
 void CStreamOVisionView::UpdateStations() {
 	StationList.ResetContent();
-	for (auto i = this->Stations.begin(); i != this->Stations.end(); ++i) {
-		StationList.AddString(i->StationName + " (" + i->StationId + ")");
+	for (auto station = Stations.begin(); station != Stations.end(); ++station) {
+		StationList.AddString(station->StationName + " (" + station->StationId + ")");
 	}
 }
 
@@ -202,7 +220,8 @@ void CStreamOVisionView::OnBnClickedAddmedia()
 			StationList.SetCurSel(0);
 		}
 		int index = StationList.GetCurSel();
-		Stations[index].Media.push_back(MediaItem(browseDlg.GetPathName(), browseDlg.GetFileName()));
+		int dbPlaylistId = Database.AddPlaylistItem(CStringToStdString(browseDlg.GetFileName()), CStringToStdString(browseDlg.GetPathName()), Stations[index].dbStationId);
+		Stations[index].Media.push_back(MediaItem(browseDlg.GetPathName(), browseDlg.GetFileName(),dbPlaylistId));
 		UpdatePlaylistContents();
 	}
 }
@@ -210,9 +229,13 @@ void CStreamOVisionView::OnBnClickedAddmedia()
 
 void CStreamOVisionView::OnBnClickedDeletemedia()
 {
-	int index = PlaylistContents.GetCurSel();
-	Stations[StationList.GetCurSel()].Media.erase(Stations[StationList.GetCurSel()].Media.begin() + index);
-	UpdatePlaylistContents();
+	if (PlaylistContents.GetCurSel() != LB_ERR) {
+		int index = PlaylistContents.GetCurSel();
+		Database.DeletePlaylistItemById(Stations[StationList.GetCurSel()].Media[index].dbPlaylistId);
+		Stations[StationList.GetCurSel()].Media.erase(Stations[StationList.GetCurSel()].Media.begin() + index);
+		UpdatePlaylistContents();
+	}
+	
 }
 
 
@@ -220,6 +243,13 @@ void CStreamOVisionView::OnBnClickedStop()
 {
 	libvlc_media_player_stop(Stations[StationList.GetCurSel()].vlcPlayer);
 	libvlc_media_player_release(Stations[StationList.GetCurSel()].vlcPlayer);
+}
+
+std::string CStreamOVisionView::CStringToStdString(CString input) {
+	CString cStr(input);
+	CT2CA ctConvStr(cStr);
+	std::string output(ctConvStr);
+	return output;
 }
 
 
