@@ -17,15 +17,18 @@
 struct MediaItem {
 	CString Path; 
 	CString Filename;
+	int dbPlaylistId;
 
-	MediaItem(CString path, CString filename) {
+	MediaItem(CString path, CString filename, int dbId) {
 		this->Path = path; 
 		this->Filename = filename;
+		this->dbPlaylistId = dbId;
 	}
 
 	MediaItem() {
 		this->Filename = "";
 		this->Path = "";
+		this->dbPlaylistId = -1;
 	}
 };
 

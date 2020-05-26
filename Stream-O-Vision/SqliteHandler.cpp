@@ -117,3 +117,48 @@ BOOL SqliteHandler::DeleteStation(int dbStationId) {
 
 	return true;
 }
+
+BOOL SqliteHandler::DeletePlaylistByStationId(int dbStationId) {
+	std::string query = "DELETE FROM playlists WHERE fk_stations_id=" + std::to_string(dbStationId) + ";";
+	char* err;
+
+	this->m_sqliteReturnCode = sqlite3_exec(this->m_sqliteDb, query.c_str(), NULL, NULL, &err);
+	if (this->m_sqliteReturnCode) {
+		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
+		fprintf(stdout, "Can't open database: %s\n", sqlite3_errmsg(this->m_sqliteDb));
+		sqlite3_free(err);
+		return false;
+	}
+
+	return true;
+}
+
+BOOL SqliteHandler::DeletePlaylistItemById(int dbPlaylistId) {
+	std::string query = "DELETE FROM playlists WHERE id=" + std::to_string(dbPlaylistId) + ";";
+	char* err;
+
+	this->m_sqliteReturnCode = sqlite3_exec(this->m_sqliteDb, query.c_str(), NULL, NULL, &err);
+	if (this->m_sqliteReturnCode) {
+		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
+		fprintf(stdout, "Can't open database: %s\n", sqlite3_errmsg(this->m_sqliteDb));
+		sqlite3_free(err);
+		return false;
+	}
+
+	return true;
+}
+
+int SqliteHandler::AddPlaylistItem(std::string filename, std::string path, int dbStationId) {
+	std::string query = "INSERT INTO playlists (Filename, Path, fk_stations_id) VALUES ('" + filename + "','" + path + "',"+ std::to_string(dbStationId) +");";
+	char* err;
+
+	this->m_sqliteReturnCode = sqlite3_exec(this->m_sqliteDb, query.c_str(), NULL, NULL, &err);
+	if (this->m_sqliteReturnCode) {
+		const char* errMsg = sqlite3_errmsg(this->m_sqliteDb);
+		fprintf(stdout, "Can't open database: %s\n", sqlite3_errmsg(this->m_sqliteDb));
+		sqlite3_free(err);
+		return -1;
+	}
+
+	return sqlite3_last_insert_rowid(this->m_sqliteDb);
+}

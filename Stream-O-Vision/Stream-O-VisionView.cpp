@@ -180,9 +180,10 @@ void CStreamOVisionView::OnBnClickedDeletestation()
 	if (StationList.GetCurSel() != LB_ERR) {
 		int dbId = Stations[StationList.GetCurSel()].dbStationId; 
 		Database.DeleteStation(dbId);
-		//TODO: Loop through playlist and delete each
+		Database.DeletePlaylistByStationId(dbId);
 		Stations.erase(StationList.GetCurSel() + Stations.begin());
 		UpdateStations();
+		PlaylistContents.ResetContent();
 	}
 }
 
@@ -219,7 +220,8 @@ void CStreamOVisionView::OnBnClickedAddmedia()
 			StationList.SetCurSel(0);
 		}
 		int index = StationList.GetCurSel();
-		Stations[index].Media.push_back(MediaItem(browseDlg.GetPathName(), browseDlg.GetFileName()));
+		int dbPlaylistId = Database.AddPlaylistItem(CStringToStdString(browseDlg.GetFileName()), CStringToStdString(browseDlg.GetPathName()), Stations[index].dbStationId);
+		Stations[index].Media.push_back(MediaItem(browseDlg.GetPathName(), browseDlg.GetFileName(),dbPlaylistId));
 		UpdatePlaylistContents();
 	}
 }
@@ -227,9 +229,13 @@ void CStreamOVisionView::OnBnClickedAddmedia()
 
 void CStreamOVisionView::OnBnClickedDeletemedia()
 {
-	int index = PlaylistContents.GetCurSel();
-	Stations[StationList.GetCurSel()].Media.erase(Stations[StationList.GetCurSel()].Media.begin() + index);
-	UpdatePlaylistContents();
+	if (PlaylistContents.GetCurSel() != LB_ERR) {
+		int index = PlaylistContents.GetCurSel();
+		Database.DeletePlaylistItemById(Stations[StationList.GetCurSel()].Media[index].dbPlaylistId);
+		Stations[StationList.GetCurSel()].Media.erase(Stations[StationList.GetCurSel()].Media.begin() + index);
+		UpdatePlaylistContents();
+	}
+	
 }
 
 

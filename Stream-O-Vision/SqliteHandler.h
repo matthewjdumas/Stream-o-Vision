@@ -21,15 +21,14 @@ class SqliteHandler
 
 		int AddStation(std::string, std::string);
 		BOOL DeleteStation(int);
-		//void GetStation();
-		//void AddStation(); 
-		//void DeleteStation();
+		BOOL DeletePlaylistByStationId(int);
+		BOOL DeletePlaylistItemById(int);
+		int AddPlaylistItem(std::string, std::string, int);
 
 		//void GetSchedule(); 
 		//void UpdateSchedule(); 
 		//void DeleteSchedule();
 		//void CreateSchedule(); 
-
 
 		SqliteHandler() {
 			m_sqliteDb = NULL;
