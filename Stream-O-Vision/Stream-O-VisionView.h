@@ -4,6 +4,7 @@
 
 #pragma once
 #include "SqliteHandler.h"
+#include "MainVidContainer.h"
 
 class CStreamOVisionView : public CFormView
 {
@@ -55,16 +56,18 @@ public:
 
 	afx_msg void OnBnClickedPlay();
 	afx_msg void OnLbnSelchangePlaylist();
-	// variable to hold the contents of the playlist
-	CListBox PlaylistContents;
 	afx_msg void OnLbnSelchangeStationlist();
 	afx_msg void OnBnClickedAddstation();
 	afx_msg void OnBnClickedAddmedia();
 	afx_msg void OnBnClickedDeletemedia();
 	afx_msg void OnBnClickedStop();
-	CListBox StationList;
 	afx_msg void OnBnClickedDeletestation();
 
+	CListBox StationList;
+	CListBox PlaylistContents; // variable to hold the contents of the playlist
+	MainVidContainer MainVidCont;
+	BroadcastViewerSettings ViewerSettings; 
+	afx_msg void OnBnClickedBcastsett();
 };
 
 #ifndef _DEBUG  // debug version in Stream-O-VisionView.cpp

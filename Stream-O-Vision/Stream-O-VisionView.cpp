@@ -18,6 +18,7 @@
 #include "Stream-O-VisionDoc.h"
 #include "Stream-O-VisionView.h"
 #include "AddStationDialog.h"
+#include "BroadcastSettingsDlg.h"
 #include "vlcpp/vlc.hpp"
 
 
@@ -40,6 +41,7 @@ ON_BN_CLICKED(IDC_DELETEMEDIA, &CStreamOVisionView::OnBnClickedDeletemedia)
 ON_BN_CLICKED(IDC_STOP, &CStreamOVisionView::OnBnClickedStop)
 ON_BN_CLICKED(IDC_DELETESTATION, &CStreamOVisionView::OnBnClickedDeletestation)
 ON_WM_WINDOWPOSCHANGED()
+ON_BN_CLICKED(IDC_BCASTSETT, &CStreamOVisionView::OnBnClickedBcastsett)
 END_MESSAGE_MAP()
 
 // CStreamOVisionView construction/destruction
@@ -51,6 +53,8 @@ CStreamOVisionView::CStreamOVisionView() noexcept
 	TRACE("Database Open return value: ", err);
 	this->Database.LoadAll();
 	this->Stations = this->Database.GetStationMap();	
+	this->ViewerSettings.Height = 480;
+	this->ViewerSettings.Width = 640;
 }
 
 CStreamOVisionView::~CStreamOVisionView()
@@ -125,7 +129,10 @@ void CStreamOVisionView::UpdatePlaylistContents() {
 }
 
 void CStreamOVisionView::OnBnClickedPlay()
-{
+{	
+	if (::IsWindow(MainVidCont.m_hWnd)) {
+		MainVidCont.DestroyWindow();
+	}
 	if (StationList.GetCurSel() == LB_ERR) {
 		StationList.SetCurSel(0);
 		OnLbnSelchangeStationlist(); 
@@ -135,8 +142,16 @@ void CStreamOVisionView::OnBnClickedPlay()
 		OnLbnSelchangePlaylist();
 	}
 	int stationIndex = StationList.GetCurSel(); 
-	Stations[stationIndex].vlcPlayer = VLC::MediaPlayer(Stations[stationIndex].vlcMedia);
-		
+	Stations[stationIndex].vlcPlayer = VLC::MediaPlayer(Stations[stationIndex].vlcMedia);	
+
+	MainVidCont.Create(IDD_MAINVID);
+	CRect windowRect, thisRect; 
+	MainVidCont.GetWindowRect(&windowRect);
+	GetWindowRect(&thisRect);
+	MainVidCont.MoveWindow(windowRect.left + thisRect.Width() +25, thisRect.top - 75, ViewerSettings.Width, ViewerSettings.Height);
+	MainVidCont.ShowWindow(SW_SHOW);
+	MainVidCont.SetMediaPlayer(&Stations[stationIndex].vlcPlayer);
+	Stations[stationIndex].vlcPlayer.setHwnd(MainVidCont.GetSafeHwnd());
 	Stations[stationIndex].vlcPlayer.play();
 		
 	//std::this_thread::sleep_for(std::chrono::seconds(10));   // how to do a sleep!
@@ -239,6 +254,9 @@ void CStreamOVisionView::OnBnClickedStop()
 {
 	if (StationList.GetCurSel() != LB_ERR) {
 		Stations[StationList.GetCurSel()].vlcPlayer.stop();
+		if (::IsWindow(MainVidCont.m_hWnd)) {
+			MainVidCont.DestroyWindow();
+		}
 	}
 }
 
@@ -251,3 +269,15 @@ std::string CStreamOVisionView::CStringToStdString(CString input) {
 
 
 
+
+
+void CStreamOVisionView::OnBnClickedBcastsett()
+{
+	BroadcastSettingsDlg bSett;
+	if (bSett.DoModal() == IDOK) {
+		unsigned int width = bSett.GetWidth();
+		unsigned int height = bSett.GetHeight();
+		ViewerSettings.Height = height;
+		ViewerSettings.Width = width;
+	}
+}

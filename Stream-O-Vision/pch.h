@@ -52,5 +52,18 @@ struct Station {
 	}
 };
 
+struct BroadcastViewerSettings {
+	unsigned int Height, Width;
+
+	BroadcastViewerSettings() {
+		this->Height = 480;
+		this->Width = 640;
+	}
+	BroadcastViewerSettings(unsigned int h, unsigned int w) {
+		this->Height = h;
+		this->Width = w;
+	}
+
+};
 
 #endif //PCH_H

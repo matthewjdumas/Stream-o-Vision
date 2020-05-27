@@ -32,6 +32,7 @@ void AddStationDialog::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(AddStationDialog, CDialog)
 	ON_BN_CLICKED(IDOK, &AddStationDialog::OnBnClickedOk)
+	ON_EN_CHANGE(IDC_STATIONID, &AddStationDialog::OnEnChangeStationid)
 END_MESSAGE_MAP()
 
 
@@ -63,4 +64,15 @@ CString AddStationDialog::GetStationName() {
 void AddStationDialog::OnBnClickedOk()
 {
 	CDialog::OnOK();
+}
+
+
+void AddStationDialog::OnEnChangeStationid()
+{
+	// TODO:  If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the CDialog::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+
+	// TODO:  Add your control notification handler code here
 }
