@@ -6,8 +6,7 @@
 #include "SqliteHandler.h"
 #include "MainVidContainer.h"
 
-#define WM_PLAYNEXT WM_USER+1
-#define WM_STOP WM_USER+2
+
 
 class CStreamOVisionView : public CFormView
 {
@@ -74,8 +73,8 @@ public:
 	
 
 protected:
+
 	afx_msg LRESULT OnPlaynext(WPARAM wParam, LPARAM lParam);
-	afx_msg LRESULT OnStop(WPARAM wParam, LPARAM lParam);
 };
 
 #ifndef _DEBUG  // debug version in Stream-O-VisionView.cpp

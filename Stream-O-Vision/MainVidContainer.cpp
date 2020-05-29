@@ -7,7 +7,6 @@
 #include "afxdialogex.h"
 #include <vlcpp/vlc.hpp>
 
-
 // MainVidContainer dialog
 
 IMPLEMENT_DYNAMIC(MainVidContainer, CDialog)
@@ -48,6 +47,7 @@ void MainVidContainer::SetMediaFile(char* path)
 	if (VlcPlayer.isValid()) {
 		if (VlcPlayer.isPlaying()) {
 			VlcPlayer.stop();
+			delete VlcPlayer;
 		}
 	}
 	
@@ -55,11 +55,17 @@ void MainVidContainer::SetMediaFile(char* path)
 	VlcPlayer = VLC::MediaPlayer(VlcMedia);
 	VlcMediaPlayerEventMgr = &VlcPlayer.eventManager();
 	auto vlcEndFunc = [this]() -> void {
-		int i = 0; // lambda for callback
+		//::SendMessage(this->parentHwnd, WM_PLAYNEXT, 0, 0);
+		::PostMessage(this->parentHwnd, WM_PLAYNEXT, 0, 0);
 	};
 
 	VlcMediaPlayerEventMgr->onEndReached(vlcEndFunc);
 	
+}
+
+void MainVidContainer::SetParentHwnd(HWND h)
+{
+	parentHwnd = h;
 }
 
 BEGIN_MESSAGE_MAP(MainVidContainer, CDialog)
@@ -72,5 +78,6 @@ END_MESSAGE_MAP()
 
 void MainVidContainer::OnClose()
 {
+	VlcPlayer.stop();
 	CDialog::OnClose();
 }

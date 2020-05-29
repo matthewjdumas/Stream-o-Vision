@@ -7,6 +7,9 @@
 #ifndef PCH_H
 #define PCH_H
 
+#define WM_PLAYNEXT WM_USER+1
+#define WM_STOP WM_USER+2
+
 #define sleep(x) Sleep(1000 * (x))
 
 typedef long int ssize_t;   // Need this for libvlcpp bindings to work right for some reason

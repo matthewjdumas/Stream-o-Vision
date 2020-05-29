@@ -15,10 +15,13 @@ public:
 	void PlayVideo();
 	void ClosePlayer();
 	void SetMediaFile(char*);
+	void SetParentHwnd(HWND);
+
 	VLC::Instance VlcInstance;
 	VLC::MediaPlayer VlcPlayer;
 	VLC::Media VlcMedia;
 	VLC::MediaPlayerEventManager* VlcMediaPlayerEventMgr;
+	HWND parentHwnd;
 
 
 // Dialog Data

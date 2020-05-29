@@ -43,8 +43,8 @@ ON_BN_CLICKED(IDC_STOP, &CStreamOVisionView::OnBnClickedStop)
 ON_BN_CLICKED(IDC_DELETESTATION, &CStreamOVisionView::OnBnClickedDeletestation)
 ON_WM_WINDOWPOSCHANGED()
 ON_BN_CLICKED(IDC_BCASTSETT, &CStreamOVisionView::OnBnClickedBcastsett)
+
 ON_MESSAGE(WM_PLAYNEXT, &CStreamOVisionView::OnPlaynext)
-ON_MESSAGE(WM_STOP, &CStreamOVisionView::OnStop)
 END_MESSAGE_MAP()
 
 // CStreamOVisionView construction/destruction
@@ -271,6 +271,8 @@ void CStreamOVisionView::HandlePlay() {
 	MainVidCont.SetMediaFile(strVid);
 	
 	MainVidCont.Create(IDD_MAINVID);
+	MainVidCont.SetParentHwnd(this->GetSafeHwnd());
+
 	CRect windowRect, thisRect;
 	MainVidCont.GetWindowRect(&windowRect);
 	GetWindowRect(&thisRect);
@@ -282,11 +284,8 @@ void CStreamOVisionView::HandlePlay() {
 	//std::this_thread::sleep_for(std::chrono::seconds(10));   // how to do a sleep!
 }
 
-
-
 afx_msg LRESULT CStreamOVisionView::OnPlaynext(WPARAM wParam, LPARAM lParam)
 {
-
 	int stationIndex = StationList.GetCurSel();
 	if (this->PlaylistContents.GetCurSel() == this->PlaylistContents.GetCount() - 1) {
 		this->PlaylistContents.SetSel(-1, FALSE);
@@ -295,13 +294,7 @@ afx_msg LRESULT CStreamOVisionView::OnPlaynext(WPARAM wParam, LPARAM lParam)
 		this->Stations[stationIndex].MediaCurrentIndex = this->Stations[stationIndex].MediaCurrentIndex++;
 		this->PlaylistContents.SetCurSel(this->Stations[stationIndex].MediaCurrentIndex);
 	}
+
 	HandlePlay();
-	return 0;
-}
-
-
-afx_msg LRESULT CStreamOVisionView::OnStop(WPARAM wParam, LPARAM lParam)
-{
-	// handle end of playlist message here?
 	return 0;
 }
