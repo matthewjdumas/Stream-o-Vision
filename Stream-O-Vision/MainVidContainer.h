@@ -11,6 +11,7 @@ public:
 	MainVidContainer(CWnd* pParent = nullptr);   // standard constructor
 	virtual ~MainVidContainer();
 	void SetMediaPlayer(VLC::MediaPlayer*);
+	void ClosePlayer();
 	VLC::MediaPlayer* MediaPlayer;
 
 // Dialog Data

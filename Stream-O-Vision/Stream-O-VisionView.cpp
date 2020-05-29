@@ -23,6 +23,7 @@
 
 
 
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -42,6 +43,8 @@ ON_BN_CLICKED(IDC_STOP, &CStreamOVisionView::OnBnClickedStop)
 ON_BN_CLICKED(IDC_DELETESTATION, &CStreamOVisionView::OnBnClickedDeletestation)
 ON_WM_WINDOWPOSCHANGED()
 ON_BN_CLICKED(IDC_BCASTSETT, &CStreamOVisionView::OnBnClickedBcastsett)
+ON_MESSAGE(WM_PLAYNEXT, &CStreamOVisionView::OnPlaynext)
+ON_MESSAGE(WM_STOP, &CStreamOVisionView::OnStop)
 END_MESSAGE_MAP()
 
 // CStreamOVisionView construction/destruction
@@ -130,42 +133,13 @@ void CStreamOVisionView::UpdatePlaylistContents() {
 
 void CStreamOVisionView::OnBnClickedPlay()
 {	
-	if (::IsWindow(MainVidCont.m_hWnd)) {
-		MainVidCont.DestroyWindow();
-	}
-	if (StationList.GetCurSel() == LB_ERR) {
-		StationList.SetCurSel(0);
-		OnLbnSelchangeStationlist(); 
-	}
-	if (PlaylistContents.GetCurSel() == LB_ERR) {
-		PlaylistContents.SetCurSel(0);
-		OnLbnSelchangePlaylist();
-	}
-	int stationIndex = StationList.GetCurSel(); 
-	Stations[stationIndex].vlcPlayer = VLC::MediaPlayer(Stations[stationIndex].vlcMedia);	
-
-	MainVidCont.Create(IDD_MAINVID);
-	CRect windowRect, thisRect; 
-	MainVidCont.GetWindowRect(&windowRect);
-	GetWindowRect(&thisRect);
-	MainVidCont.MoveWindow(windowRect.left + thisRect.Width() +25, thisRect.top - 75, ViewerSettings.Width, ViewerSettings.Height);
-	MainVidCont.ShowWindow(SW_SHOW);
-	MainVidCont.SetMediaPlayer(&Stations[stationIndex].vlcPlayer);
-	Stations[stationIndex].vlcPlayer.setHwnd(MainVidCont.GetSafeHwnd());
-	Stations[stationIndex].vlcPlayer.play();
-		
-	//std::this_thread::sleep_for(std::chrono::seconds(10));   // how to do a sleep!
-
+	HandlePlay();
 }
-
 
 void CStreamOVisionView::OnLbnSelchangePlaylist()
 {
 	if (StationList.GetCurSel() != LB_ERR && PlaylistContents.GetCurSel() != LB_ERR) {
-		int stationIndex = StationList.GetCurSel();
-		CString cStrVid = Stations[stationIndex].Media[PlaylistContents.GetCurSel()].Path;
-		char* strVid = ConvertCStringtoStr(cStrVid.GetString());
-		Stations[stationIndex].vlcMedia = VLC::Media(Stations[stationIndex].vlcInstance, strVid, VLC::Media::FromPath);
+		Stations[StationList.GetCurSel()].MediaCurrentIndex = PlaylistContents.GetCurSel();
 	}
 }
 
@@ -232,7 +206,7 @@ void CStreamOVisionView::OnBnClickedAddmedia()
 		}
 		int index = StationList.GetCurSel();
 		int dbPlaylistId = Database.AddPlaylistItem(CStringToStdString(browseDlg.GetFileName()), CStringToStdString(browseDlg.GetPathName()), Stations[index].dbStationId);
-		Stations[index].Media.push_back(MediaItem(browseDlg.GetPathName(), browseDlg.GetFileName(),dbPlaylistId));
+		Stations[index].Media.push_back(MediaItem(browseDlg.GetPathName(), browseDlg.GetFileName(), dbPlaylistId));
 		UpdatePlaylistContents();
 	}
 }
@@ -246,7 +220,7 @@ void CStreamOVisionView::OnBnClickedDeletemedia()
 		Stations[StationList.GetCurSel()].Media.erase(Stations[StationList.GetCurSel()].Media.begin() + index);
 		UpdatePlaylistContents();
 	}
-	
+
 }
 
 
@@ -267,10 +241,6 @@ std::string CStreamOVisionView::CStringToStdString(CString input) {
 	return output;
 }
 
-
-
-
-
 void CStreamOVisionView::OnBnClickedBcastsett()
 {
 	BroadcastSettingsDlg bSett;
@@ -280,4 +250,73 @@ void CStreamOVisionView::OnBnClickedBcastsett()
 		ViewerSettings.Height = height;
 		ViewerSettings.Width = width;
 	}
+
+}
+
+void CStreamOVisionView::HandlePlay() {
+	int stationIndex = StationList.GetCurSel();
+	if (::IsWindow(MainVidCont.m_hWnd)) {
+		MainVidCont.DestroyWindow();
+	}
+	if (stationIndex == LB_ERR) {
+		return;
+	}
+	if (PlaylistContents.GetCurSel() == LB_ERR) {
+		return;
+	}
+
+	Stations[stationIndex].MediaCurrentIndex = PlaylistContents.GetCurSel();
+	CString cStrVid = Stations[stationIndex].Media[Stations[stationIndex].MediaCurrentIndex].Path;
+	char* strVid = ConvertCStringtoStr(cStrVid.GetString());
+	auto media = VLC::Media(Stations[stationIndex].vlcInstance, strVid, VLC::Media::FromPath);
+	Stations[stationIndex].vlcPlayer.setMedia(media);
+	Stations[stationIndex].vlcMediaPlayerEventMgr = &Stations[stationIndex].vlcPlayer.eventManager();
+
+
+	auto vlcEndFunc = [this]() -> void {
+		::SendMessageW(this->GetSafeHwnd(), WM_PLAYNEXT, NULL, NULL);
+	};
+
+	Stations[stationIndex].vlcMediaPlayerEventMgr->onEndReached(vlcEndFunc);
+
+	MainVidCont.Create(IDD_MAINVID);
+	CRect windowRect, thisRect;
+	MainVidCont.GetWindowRect(&windowRect);
+	GetWindowRect(&thisRect);
+	MainVidCont.MoveWindow(windowRect.left + thisRect.Width() + 25, thisRect.top - 75, ViewerSettings.Width, ViewerSettings.Height);
+	MainVidCont.ShowWindow(SW_SHOW);
+	MainVidCont.SetMediaPlayer(&Stations[stationIndex].vlcPlayer);
+	Stations[stationIndex].vlcPlayer.setHwnd(MainVidCont.GetSafeHwnd());
+	Stations[stationIndex].vlcPlayer.play();
+
+
+	//std::this_thread::sleep_for(std::chrono::seconds(10));   // how to do a sleep!
+
+}
+
+afx_msg LRESULT CStreamOVisionView::OnPlaynext(WPARAM wParam, LPARAM lParam)
+{
+
+	int stationIndex = StationList.GetCurSel();
+	if (this->PlaylistContents.GetCurSel() == this->PlaylistContents.GetCount() - 1) {
+		this->PlaylistContents.SetSel(-1, FALSE);
+	}
+	else {
+		this->Stations[stationIndex].MediaCurrentIndex = this->Stations[stationIndex].MediaCurrentIndex++;
+		this->PlaylistContents.SetCurSel(this->Stations[stationIndex].MediaCurrentIndex);
+	}
+	HandlePlay();
+	return 0;
+}
+
+
+afx_msg LRESULT CStreamOVisionView::OnStop(WPARAM wParam, LPARAM lParam)
+{
+	if (StationList.GetCurSel() != LB_ERR) {
+		Stations[StationList.GetCurSel()].vlcPlayer.stop();
+			if (::IsWindow(MainVidCont.m_hWnd)) {
+				MainVidCont.DestroyWindow();
+			}
+		}
+	return 0;
 }

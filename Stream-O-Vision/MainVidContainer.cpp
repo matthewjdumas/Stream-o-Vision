@@ -31,6 +31,10 @@ void MainVidContainer::SetMediaPlayer(VLC::MediaPlayer* mp) {
 	MediaPlayer = mp;
 }
 
+void MainVidContainer::ClosePlayer() {
+	OnClose();
+}
+
 BEGIN_MESSAGE_MAP(MainVidContainer, CDialog)
 	ON_WM_CLOSE()
 END_MESSAGE_MAP()

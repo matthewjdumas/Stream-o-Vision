@@ -8,6 +8,7 @@
 #define PCH_H
 
 #define sleep(x) Sleep(1000 * (x))
+
 typedef long int ssize_t;   // Need this for libvlcpp bindings to work right for some reason
 
 // add headers that you want to pre-compile here
@@ -41,14 +42,17 @@ struct Station {
 	unsigned int MediaCurrentIndex; 
 	VLC::Instance vlcInstance;
 	VLC::MediaPlayer vlcPlayer;
-	VLC::Media vlcMedia;
+	std::vector<VLC::EventManager::RegisteredEvent> vlcRegisteredEvents;
+	VLC::MediaPlayerEventManager *vlcMediaPlayerEventMgr;
+	BOOL autoUpdated;
 
 	Station() {
 		this->dbStationId = -1;
 		this->StationId = "";
 		this->StationName = "";
 		this->MediaCurrentIndex = 0;
-		this->vlcInstance = VLC::Instance(0, nullptr);       
+		this->vlcInstance = VLC::Instance(0, nullptr);   
+		this->autoUpdated = FALSE;
 	}
 };
 
