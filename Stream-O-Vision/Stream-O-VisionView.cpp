@@ -151,7 +151,6 @@ void CStreamOVisionView::OnBnClickedAddstation()
 		Station newStation = Station(); 
 		newStation.StationId = newStationDlg.GetStationId();
 		newStation.StationName = newStationDlg.GetStationName();
-		newStation.vlcInstance = VLC::Instance(0, nullptr);
 		int rowId = Database.AddStation(CStringToStdString(newStation.StationId), CStringToStdString(newStation.StationName));
 		newStation.dbStationId = rowId;
 		Stations.push_back(newStation);
@@ -227,9 +226,8 @@ void CStreamOVisionView::OnBnClickedDeletemedia()
 void CStreamOVisionView::OnBnClickedStop()
 {
 	if (StationList.GetCurSel() != LB_ERR) {
-		Stations[StationList.GetCurSel()].vlcPlayer.stop();
 		if (::IsWindow(MainVidCont.m_hWnd)) {
-			MainVidCont.DestroyWindow();
+			MainVidCont.StopPlayer();
 		}
 	}
 }
@@ -256,6 +254,7 @@ void CStreamOVisionView::OnBnClickedBcastsett()
 void CStreamOVisionView::HandlePlay() {
 	int stationIndex = StationList.GetCurSel();
 	if (::IsWindow(MainVidCont.m_hWnd)) {
+		MainVidCont.CloseWindow();
 		MainVidCont.DestroyWindow();
 	}
 	if (stationIndex == LB_ERR) {
@@ -268,31 +267,22 @@ void CStreamOVisionView::HandlePlay() {
 	Stations[stationIndex].MediaCurrentIndex = PlaylistContents.GetCurSel();
 	CString cStrVid = Stations[stationIndex].Media[Stations[stationIndex].MediaCurrentIndex].Path;
 	char* strVid = ConvertCStringtoStr(cStrVid.GetString());
-	auto media = VLC::Media(Stations[stationIndex].vlcInstance, strVid, VLC::Media::FromPath);
-	Stations[stationIndex].vlcPlayer.setMedia(media);
-	Stations[stationIndex].vlcMediaPlayerEventMgr = &Stations[stationIndex].vlcPlayer.eventManager();
-
-
-	auto vlcEndFunc = [this]() -> void {
-		::SendMessageW(this->GetSafeHwnd(), WM_PLAYNEXT, NULL, NULL);
-	};
-
-	Stations[stationIndex].vlcMediaPlayerEventMgr->onEndReached(vlcEndFunc);
-
+	
+	MainVidCont.SetMediaFile(strVid);
+	
 	MainVidCont.Create(IDD_MAINVID);
 	CRect windowRect, thisRect;
 	MainVidCont.GetWindowRect(&windowRect);
 	GetWindowRect(&thisRect);
 	MainVidCont.MoveWindow(windowRect.left + thisRect.Width() + 25, thisRect.top - 75, ViewerSettings.Width, ViewerSettings.Height);
 	MainVidCont.ShowWindow(SW_SHOW);
-	MainVidCont.SetMediaPlayer(&Stations[stationIndex].vlcPlayer);
-	Stations[stationIndex].vlcPlayer.setHwnd(MainVidCont.GetSafeHwnd());
-	Stations[stationIndex].vlcPlayer.play();
 
+	MainVidCont.PlayVideo();
 
 	//std::this_thread::sleep_for(std::chrono::seconds(10));   // how to do a sleep!
-
 }
+
+
 
 afx_msg LRESULT CStreamOVisionView::OnPlaynext(WPARAM wParam, LPARAM lParam)
 {
@@ -312,11 +302,6 @@ afx_msg LRESULT CStreamOVisionView::OnPlaynext(WPARAM wParam, LPARAM lParam)
 
 afx_msg LRESULT CStreamOVisionView::OnStop(WPARAM wParam, LPARAM lParam)
 {
-	if (StationList.GetCurSel() != LB_ERR) {
-		Stations[StationList.GetCurSel()].vlcPlayer.stop();
-			if (::IsWindow(MainVidCont.m_hWnd)) {
-				MainVidCont.DestroyWindow();
-			}
-		}
+	// handle end of playlist message here?
 	return 0;
 }

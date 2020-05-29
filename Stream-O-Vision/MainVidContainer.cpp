@@ -5,6 +5,7 @@
 #include "Stream-O-Vision.h"
 #include "MainVidContainer.h"
 #include "afxdialogex.h"
+#include <vlcpp/vlc.hpp>
 
 
 // MainVidContainer dialog
@@ -14,12 +15,22 @@ IMPLEMENT_DYNAMIC(MainVidContainer, CDialog)
 MainVidContainer::MainVidContainer(CWnd* pParent /*=nullptr*/)
 	: CDialog(IDD_MAINVID, pParent)
 {
-	MediaPlayer = nullptr;
+	VlcInstance = VLC::Instance(0, nullptr);
+
 }
 
 MainVidContainer::~MainVidContainer()
 {
-	MediaPlayer->stop();
+}
+
+void MainVidContainer::StopPlayer()
+{
+	VlcPlayer.stop();
+}
+
+void MainVidContainer::PlayVideo() {
+	VlcPlayer.setHwnd(this->GetSafeHwnd());
+	VlcPlayer.play();
 }
 
 void MainVidContainer::DoDataExchange(CDataExchange* pDX)
@@ -27,12 +38,28 @@ void MainVidContainer::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 }
 
-void MainVidContainer::SetMediaPlayer(VLC::MediaPlayer* mp) {
-	MediaPlayer = mp;
-}
-
 void MainVidContainer::ClosePlayer() {
 	OnClose();
+}
+
+void MainVidContainer::SetMediaFile(char* path)
+{
+
+	if (VlcPlayer.isValid()) {
+		if (VlcPlayer.isPlaying()) {
+			VlcPlayer.stop();
+		}
+	}
+	
+	VlcMedia = VLC::Media(VlcInstance, path, VLC::Media::FromPath);
+	VlcPlayer = VLC::MediaPlayer(VlcMedia);
+	VlcMediaPlayerEventMgr = &VlcPlayer.eventManager();
+	auto vlcEndFunc = [this]() -> void {
+		int i = 0; // lambda for callback
+	};
+
+	VlcMediaPlayerEventMgr->onEndReached(vlcEndFunc);
+	
 }
 
 BEGIN_MESSAGE_MAP(MainVidContainer, CDialog)
@@ -45,7 +72,5 @@ END_MESSAGE_MAP()
 
 void MainVidContainer::OnClose()
 {
-	MediaPlayer->stop();
-
 	CDialog::OnClose();
 }

@@ -40,19 +40,12 @@ struct Station {
 	CString StationId; 
 	int dbStationId;
 	unsigned int MediaCurrentIndex; 
-	VLC::Instance vlcInstance;
-	VLC::MediaPlayer vlcPlayer;
-	std::vector<VLC::EventManager::RegisteredEvent> vlcRegisteredEvents;
-	VLC::MediaPlayerEventManager *vlcMediaPlayerEventMgr;
-	BOOL autoUpdated;
 
 	Station() {
 		this->dbStationId = -1;
 		this->StationId = "";
 		this->StationName = "";
 		this->MediaCurrentIndex = 0;
-		this->vlcInstance = VLC::Instance(0, nullptr);   
-		this->autoUpdated = FALSE;
 	}
 };
 

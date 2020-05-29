@@ -56,7 +56,7 @@ public:
 	void UpdateStations();
 	std::string CStringToStdString(CString);
 	void HandlePlay();
-
+	
 	afx_msg void OnBnClickedPlay();
 	afx_msg void OnLbnSelchangePlaylist();
 	afx_msg void OnLbnSelchangeStationlist();

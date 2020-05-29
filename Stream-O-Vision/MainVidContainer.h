@@ -1,6 +1,7 @@
 #pragma once
 #include <vlcpp/vlc.hpp>
 
+
 // MainVidContainer dialog
 
 class MainVidContainer : public CDialog
@@ -10,9 +11,15 @@ class MainVidContainer : public CDialog
 public:
 	MainVidContainer(CWnd* pParent = nullptr);   // standard constructor
 	virtual ~MainVidContainer();
-	void SetMediaPlayer(VLC::MediaPlayer*);
+	void StopPlayer();
+	void PlayVideo();
 	void ClosePlayer();
-	VLC::MediaPlayer* MediaPlayer;
+	void SetMediaFile(char*);
+	VLC::Instance VlcInstance;
+	VLC::MediaPlayer VlcPlayer;
+	VLC::Media VlcMedia;
+	VLC::MediaPlayerEventManager* VlcMediaPlayerEventMgr;
+
 
 // Dialog Data
 #ifdef AFX_DESIGN_TIME
