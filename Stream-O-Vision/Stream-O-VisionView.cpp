@@ -18,6 +18,9 @@
 #include "Stream-O-VisionDoc.h"
 #include "Stream-O-VisionView.h"
 #include "AddStationDialog.h"
+#include "BroadcastSettingsDlg.h"
+#include "vlcpp/vlc.hpp"
+
 
 
 
@@ -39,6 +42,9 @@ ON_BN_CLICKED(IDC_DELETEMEDIA, &CStreamOVisionView::OnBnClickedDeletemedia)
 ON_BN_CLICKED(IDC_STOP, &CStreamOVisionView::OnBnClickedStop)
 ON_BN_CLICKED(IDC_DELETESTATION, &CStreamOVisionView::OnBnClickedDeletestation)
 ON_WM_WINDOWPOSCHANGED()
+ON_BN_CLICKED(IDC_BCASTSETT, &CStreamOVisionView::OnBnClickedBcastsett)
+
+ON_MESSAGE(WM_PLAYNEXT, &CStreamOVisionView::OnPlaynext)
 END_MESSAGE_MAP()
 
 // CStreamOVisionView construction/destruction
@@ -50,15 +56,14 @@ CStreamOVisionView::CStreamOVisionView() noexcept
 	TRACE("Database Open return value: ", err);
 	this->Database.LoadAll();
 	this->Stations = this->Database.GetStationMap();	
+	this->ViewerSettings.Height = 480;
+	this->ViewerSettings.Width = 640;
 }
 
 CStreamOVisionView::~CStreamOVisionView()
 {
 	this->Database.CloseDatabase();
-	for (auto station = Stations.begin(); station != Stations.end(); ++station) {
-		libvlc_release(station->vlcInstance);
-	}
-	
+
 }
 
 void CStreamOVisionView::DoDataExchange(CDataExchange* pDX)
@@ -70,9 +75,6 @@ void CStreamOVisionView::DoDataExchange(CDataExchange* pDX)
 
 BOOL CStreamOVisionView::PreCreateWindow(CREATESTRUCT& cs)
 {
-	// TODO: Modify the Window class or styles here by modifying
-	//  the CREATESTRUCT cs
-
 	return CFormView::PreCreateWindow(cs);
 }
 
@@ -130,31 +132,14 @@ void CStreamOVisionView::UpdatePlaylistContents() {
 }
 
 void CStreamOVisionView::OnBnClickedPlay()
-{
-	if (StationList.GetCurSel() == LB_ERR) {
-		StationList.SetCurSel(0);
-		OnLbnSelchangeStationlist(); 
-	}
-	if (PlaylistContents.GetCurSel() == LB_ERR) {
-		PlaylistContents.SetCurSel(0);
-		OnLbnSelchangePlaylist();
-	}
-	int stationIndex = StationList.GetCurSel(); 
-
-	Stations[stationIndex].vlcPlayer = libvlc_media_player_new_from_media(Stations[stationIndex].vlcMedia);
-
-	libvlc_media_release(Stations[stationIndex].vlcMedia);
-	libvlc_media_player_play(Stations[stationIndex].vlcPlayer);
+{	
+	HandlePlay();
 }
-
 
 void CStreamOVisionView::OnLbnSelchangePlaylist()
 {
 	if (StationList.GetCurSel() != LB_ERR && PlaylistContents.GetCurSel() != LB_ERR) {
-		int stationIndex = StationList.GetCurSel();
-		CString cStrVid = Stations[stationIndex].Media[PlaylistContents.GetCurSel()].Path;
-		char* strVid = ConvertCStringtoStr(cStrVid.GetString());
-		Stations[stationIndex].vlcMedia = libvlc_media_new_path(Stations[stationIndex].vlcInstance, strVid);
+		Stations[StationList.GetCurSel()].MediaCurrentIndex = PlaylistContents.GetCurSel();
 	}
 }
 
@@ -166,7 +151,6 @@ void CStreamOVisionView::OnBnClickedAddstation()
 		Station newStation = Station(); 
 		newStation.StationId = newStationDlg.GetStationId();
 		newStation.StationName = newStationDlg.GetStationName();
-		newStation.vlcInstance = libvlc_new(0, NULL);
 		int rowId = Database.AddStation(CStringToStdString(newStation.StationId), CStringToStdString(newStation.StationName));
 		newStation.dbStationId = rowId;
 		Stations.push_back(newStation);
@@ -221,7 +205,7 @@ void CStreamOVisionView::OnBnClickedAddmedia()
 		}
 		int index = StationList.GetCurSel();
 		int dbPlaylistId = Database.AddPlaylistItem(CStringToStdString(browseDlg.GetFileName()), CStringToStdString(browseDlg.GetPathName()), Stations[index].dbStationId);
-		Stations[index].Media.push_back(MediaItem(browseDlg.GetPathName(), browseDlg.GetFileName(),dbPlaylistId));
+		Stations[index].Media.push_back(MediaItem(browseDlg.GetPathName(), browseDlg.GetFileName(), dbPlaylistId));
 		UpdatePlaylistContents();
 	}
 }
@@ -235,14 +219,17 @@ void CStreamOVisionView::OnBnClickedDeletemedia()
 		Stations[StationList.GetCurSel()].Media.erase(Stations[StationList.GetCurSel()].Media.begin() + index);
 		UpdatePlaylistContents();
 	}
-	
+
 }
 
 
 void CStreamOVisionView::OnBnClickedStop()
 {
-	libvlc_media_player_stop(Stations[StationList.GetCurSel()].vlcPlayer);
-	libvlc_media_player_release(Stations[StationList.GetCurSel()].vlcPlayer);
+	if (StationList.GetCurSel() != LB_ERR) {
+		if (::IsWindow(MainVidCont.m_hWnd)) {
+			MainVidCont.StopPlayer();
+		}
+	}
 }
 
 std::string CStreamOVisionView::CStringToStdString(CString input) {
@@ -252,5 +239,62 @@ std::string CStreamOVisionView::CStringToStdString(CString input) {
 	return output;
 }
 
+void CStreamOVisionView::OnBnClickedBcastsett()
+{
+	BroadcastSettingsDlg bSett;
+	if (bSett.DoModal() == IDOK) {
+		unsigned int width = bSett.GetWidth();
+		unsigned int height = bSett.GetHeight();
+		ViewerSettings.Height = height;
+		ViewerSettings.Width = width;
+	}
 
+}
 
+void CStreamOVisionView::HandlePlay() {
+	int stationIndex = StationList.GetCurSel();
+	if (::IsWindow(MainVidCont.m_hWnd)) {
+		MainVidCont.CloseWindow();
+		MainVidCont.DestroyWindow();
+	}
+	if (stationIndex == LB_ERR) {
+		return;
+	}
+	if (PlaylistContents.GetCurSel() == LB_ERR) {
+		return;
+	}
+
+	Stations[stationIndex].MediaCurrentIndex = PlaylistContents.GetCurSel();
+	CString cStrVid = Stations[stationIndex].Media[Stations[stationIndex].MediaCurrentIndex].Path;
+	char* strVid = ConvertCStringtoStr(cStrVid.GetString());
+	
+	MainVidCont.SetMediaFile(strVid);
+	
+	MainVidCont.Create(IDD_MAINVID);
+	MainVidCont.SetParentHwnd(this->GetSafeHwnd());
+
+	CRect windowRect, thisRect;
+	MainVidCont.GetWindowRect(&windowRect);
+	GetWindowRect(&thisRect);
+	MainVidCont.MoveWindow(windowRect.left + thisRect.Width() + 25, thisRect.top - 75, ViewerSettings.Width, ViewerSettings.Height);
+	MainVidCont.ShowWindow(SW_SHOW);
+
+	MainVidCont.PlayVideo();
+
+	//std::this_thread::sleep_for(std::chrono::seconds(10));   // how to do a sleep!
+}
+
+afx_msg LRESULT CStreamOVisionView::OnPlaynext(WPARAM wParam, LPARAM lParam)
+{
+	int stationIndex = StationList.GetCurSel();
+	if (this->PlaylistContents.GetCurSel() == this->PlaylistContents.GetCount() - 1) {
+		this->PlaylistContents.SetSel(-1, FALSE);
+	}
+	else {
+		this->Stations[stationIndex].MediaCurrentIndex = this->Stations[stationIndex].MediaCurrentIndex++;
+		this->PlaylistContents.SetCurSel(this->Stations[stationIndex].MediaCurrentIndex);
+	}
+
+	HandlePlay();
+	return 0;
+}
