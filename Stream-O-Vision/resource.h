@@ -10,6 +10,8 @@
 #define IDR_StreamStationTYPE           130
 #define ID_STATUS_PAGE                  310
 #define IDD_DIALOG1                     319
+#define IDD_MAINVID                     323
+#define IDD_BCASTSETTINGS               325
 #define IDC_VLCPLUGIN1                  1001
 #define IDC_BUTTON1                     1002
 #define IDC_ADDMEDIA                    1002
@@ -22,6 +24,9 @@
 #define IDC_DELETESTATION               1010
 #define IDC_STATIONID                   1013
 #define IDC_STATIONNAME                 1014
+#define IDC_WIDTH                       1015
+#define IDC_HEIGHT                      1016
+#define IDC_BCASTSETT                   1016
 #define ID_Menu                         32771
 #define ID_VIEW_SETTINGS                32772
 
@@ -29,9 +34,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        321
+#define _APS_NEXT_RESOURCE_VALUE        327
 #define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1015
+#define _APS_NEXT_CONTROL_VALUE         1017
 #define _APS_NEXT_SYMED_VALUE           311
 #endif
 #endif

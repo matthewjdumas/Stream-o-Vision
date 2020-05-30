@@ -191,8 +191,10 @@ xcopy /y /d "$(ProjectDir)db_seed\*" "$(OutDir)" /E /H</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AddStationDialog.h" />
+    <ClInclude Include="BroadcastSettingsDlg.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="MainVidContainer.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SqliteHandler.h" />
@@ -203,7 +205,9 @@ xcopy /y /d "$(ProjectDir)db_seed\*" "$(OutDir)" /E /H</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AddStationDialog.cpp" />
+    <ClCompile Include="BroadcastSettingsDlg.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="MainVidContainer.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
