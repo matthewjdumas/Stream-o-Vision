@@ -52,10 +52,10 @@ void MainVidContainer::SetMediaFile(char* path)
 	}
 	
 	VlcMedia = VLC::Media(VlcInstance, path, VLC::Media::FromPath);
+	
 	VlcPlayer = VLC::MediaPlayer(VlcMedia);
 	VlcMediaPlayerEventMgr = &VlcPlayer.eventManager();
 	auto vlcEndFunc = [this]() -> void {
-		//::SendMessage(this->parentHwnd, WM_PLAYNEXT, 0, 0);
 		::PostMessage(this->parentHwnd, WM_PLAYNEXT, 0, 0);
 	};
 
