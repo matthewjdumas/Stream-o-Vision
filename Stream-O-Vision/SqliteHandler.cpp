@@ -56,7 +56,7 @@ std::vector<Station> SqliteHandler::GetStationMap() {
 	return this->m_stations;
 }
 
-BOOL SqliteHandler::GetPlaylist(int id, int index) {
+BOOL SqliteHandler::GetPlaylist(int64_t id, int index) {
 	std::string strId = std::to_string(id).c_str();
 	std::string strQuery = "SELECT * FROM playlists WHERE fk_stations_id='" + strId + "';";
 	const char* query = strQuery.c_str();
@@ -87,7 +87,7 @@ BOOL SqliteHandler::GetPlaylist(int id, int index) {
 	return true;
 }
 
-int SqliteHandler::AddStation(std::string StationId, std::string StationName) {
+int64_t SqliteHandler::AddStation(std::string StationId, std::string StationName) {
 	std::string query = "INSERT INTO stations (StationId, StationName) VALUES ('" + StationId + "','" + StationName + "');";
 	char* err;
 	
@@ -102,7 +102,7 @@ int SqliteHandler::AddStation(std::string StationId, std::string StationName) {
 	return sqlite3_last_insert_rowid(this->m_sqliteDb);
 }
 
-BOOL SqliteHandler::DeleteStation(int dbStationId) {
+BOOL SqliteHandler::DeleteStation(int64_t dbStationId) {
 	std::string query = "DELETE FROM stations WHERE id=" + std::to_string(dbStationId) + ";";
 	char* err;
 
@@ -117,7 +117,7 @@ BOOL SqliteHandler::DeleteStation(int dbStationId) {
 	return true;
 }
 
-BOOL SqliteHandler::DeletePlaylistByStationId(int dbStationId) {
+BOOL SqliteHandler::DeletePlaylistByStationId(int64_t dbStationId) {
 	std::string query = "DELETE FROM playlists WHERE fk_stations_id=" + std::to_string(dbStationId) + ";";
 	char* err;
 
@@ -132,7 +132,7 @@ BOOL SqliteHandler::DeletePlaylistByStationId(int dbStationId) {
 	return true;
 }
 
-BOOL SqliteHandler::DeletePlaylistItemById(int dbPlaylistId) {
+BOOL SqliteHandler::DeletePlaylistItemById(int64_t dbPlaylistId) {
 	std::string query = "DELETE FROM playlists WHERE id=" + std::to_string(dbPlaylistId) + ";";
 	char* err;
 
@@ -147,7 +147,7 @@ BOOL SqliteHandler::DeletePlaylistItemById(int dbPlaylistId) {
 	return true;
 }
 
-int SqliteHandler::AddPlaylistItem(std::string filename, std::string path, int dbStationId) {
+int64_t SqliteHandler::AddPlaylistItem(std::string filename, std::string path, int64_t dbStationId) {
 	std::string query = "INSERT INTO playlists (Filename, Path, fk_stations_id) VALUES ('" + filename + "','" + path + "',"+ std::to_string(dbStationId) +");";
 	char* err;
 
