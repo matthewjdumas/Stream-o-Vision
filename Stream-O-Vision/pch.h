@@ -22,9 +22,9 @@ typedef long int ssize_t;   // Need this for libvlcpp bindings to work right for
 struct MediaItem {
 	CString Path; 
 	CString Filename;
-	int dbPlaylistId;
+	int64_t dbPlaylistId;
 
-	MediaItem(CString path, CString filename, int dbId) {
+	MediaItem(CString path, CString filename, int64_t dbId) {
 		Path = path; 
 		Filename = filename;
 		dbPlaylistId = dbId;
@@ -41,7 +41,7 @@ struct Station {
 	std::vector<MediaItem> Media; 
 	CString StationName; 
 	CString StationId; 
-	int dbStationId;
+	int64_t dbStationId;
 	unsigned int MediaCurrentIndex; 
 
 	Station() {
