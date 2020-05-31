@@ -55,8 +55,7 @@ CStreamOVisionView::CStreamOVisionView() noexcept
 	TRACE("Database Open return value: ", err);
 	this->Database.LoadAll();
 	this->Stations = this->Database.GetStationMap();	
-	this->ViewerSettings.Height = 480;
-	this->ViewerSettings.Width = 640;
+	ViewerSettings = BroadcastViewerSettings(480, 640, 5004, "224.0.0.239");
 }
 
 CStreamOVisionView::~CStreamOVisionView()
@@ -241,11 +240,20 @@ std::string CStreamOVisionView::CStringToStdString(CString input) {
 void CStreamOVisionView::OnBnClickedBcastsett()
 {
 	BroadcastSettingsDlg bSett;
+	bSett.SetIpAddress(ViewerSettings.IpAddress);
+	bSett.SetPort(ViewerSettings.Port);
+	bSett.SetWidth(ViewerSettings.Width);
+	bSett.SetHeight(ViewerSettings.Height);
+
 	if (bSett.DoModal() == IDOK) {
 		unsigned int width = bSett.GetWidth();
 		unsigned int height = bSett.GetHeight();
+		std::string ipAddress = bSett.GetIpAddress();
+		unsigned int port = bSett.GetPort();
 		ViewerSettings.Height = height;
 		ViewerSettings.Width = width;
+		ViewerSettings.Port = port;
+		ViewerSettings.IpAddress = ipAddress;
 	}
 
 }
@@ -279,8 +287,8 @@ void CStreamOVisionView::HandlePlay() {
 	MainVidCont.MoveWindow(windowRect.left + thisRect.Width() + 25, thisRect.top - 75, ViewerSettings.Width, ViewerSettings.Height);
 	MainVidCont.ShowWindow(SW_SHOW);
 
-	MainVidCont.SetIp(ip);
-	MainVidCont.SetPort(5004);
+	MainVidCont.SetIp(ViewerSettings.IpAddress);
+	MainVidCont.SetPort(ViewerSettings.Port);
 	MainVidCont.SetStationName(stationName);
 	MainVidCont.SetMediaFile(strVid);
 

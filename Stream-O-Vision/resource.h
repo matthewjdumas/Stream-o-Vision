@@ -27,8 +27,9 @@
 #define IDC_WIDTH                       1015
 #define IDC_HEIGHT                      1016
 #define IDC_BCASTSETT                   1016
-#define IDC_BUTTON2                     1017
-#define IDC_STREAM                      1017
+#define IDC_HEIGHT2                     1017
+#define IDC_PORT                        1017
+#define IDC_IPADDR                      1018
 #define ID_Menu                         32771
 #define ID_VIEW_SETTINGS                32772
 

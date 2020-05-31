@@ -53,15 +53,20 @@ struct Station {
 };
 
 struct BroadcastViewerSettings {
-	unsigned int Height, Width;
+	unsigned int Height, Width, Port;
+	std::string IpAddress;
 
 	BroadcastViewerSettings() {
 		this->Height = 480;
 		this->Width = 640;
+		this->Port = 5004;
+		this->IpAddress = "";
 	}
-	BroadcastViewerSettings(unsigned int h, unsigned int w) {
+	BroadcastViewerSettings(unsigned int h, unsigned int w, unsigned int p, std::string ip) {
 		this->Height = h;
 		this->Width = w;
+		this->Port = p;
+		this->IpAddress = ip;
 	}
 
 };
