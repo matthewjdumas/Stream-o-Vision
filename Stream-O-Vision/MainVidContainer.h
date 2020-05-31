@@ -19,6 +19,7 @@ public:
 	void SetIp(std::string);
 	void SetPort(unsigned int);
 	void SetStationName(std::string);
+	void SetLocalOutput(BOOL);
 
 
 	VLC::Instance VlcInstance;
@@ -30,6 +31,7 @@ public:
 	std::string stationName; 
 	std::string ipAddress; 
 	unsigned int port;
+	BOOL showLocal{ FALSE };
 
 
 // Dialog Data

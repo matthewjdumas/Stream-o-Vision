@@ -33,6 +33,11 @@ void MainVidContainer::StopPlayer()
 
 void MainVidContainer::PlayVideo() {
 	VlcPlayer.setHwnd(this->GetSafeHwnd());
+	libvlc_meta_t metaData{};
+	auto stat = VlcMedia.parsedStatus();
+
+	VlcMedia.meta(metaData);
+
 	VlcPlayer.play();
 }
 
@@ -68,10 +73,18 @@ void MainVidContainer::SetMediaFile(char* path)
 	}
 	
 	VlcMedia = VLC::Media(VlcInstance, path, VLC::Media::FromPath);
-	std::string soutCmd = ":sout=#rtp{dst="+ipAddress+",port=" + std::to_string(port) + ",mux=ts,sap,name="+stationName+"}";
+
+	std::string soutCmd = "";
+	if (showLocal) {
+		soutCmd = ":sout=#duplicate{dst=rtp{dst=" + ipAddress + ",port=" + std::to_string(port) + ",mux=ts,sap,name=" + stationName + "},dst=display}";
+	}
+	else {
+		soutCmd = ":sout=#rtp{dst=" + ipAddress + ",port=" + std::to_string(port) + ",mux=ts,sap,name=" + stationName + "}";
+	}
 
 	VlcMedia.addOption(soutCmd);
 	VlcPlayer = VLC::MediaPlayer(VlcMedia);
+
 	VlcMediaPlayerEventMgr = &VlcPlayer.eventManager();
 	auto vlcEndFunc = [this]() -> void {
 		::PostMessage(this->parentHwnd, WM_PLAYNEXT, 0, 0);
@@ -90,6 +103,11 @@ BEGIN_MESSAGE_MAP(MainVidContainer, CDialog)
 	ON_WM_CLOSE()
 END_MESSAGE_MAP()
 
+
+void MainVidContainer::SetLocalOutput(BOOL l) {
+	showLocal = l;
+
+}
 
 // MainVidContainer message handlers
 

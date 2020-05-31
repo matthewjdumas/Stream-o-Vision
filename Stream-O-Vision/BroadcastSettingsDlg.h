@@ -27,19 +27,24 @@ public:
 	unsigned int GetWidth();
 	unsigned int GetHeight();
 	unsigned int GetPort();
+	std::string GetIpAddress();
+	BOOL GetLocalPlay();
 
 	void SetWidth(unsigned int);
 	void SetHeight(unsigned int);
 	void SetPort(unsigned int);
 	void SetIpAddress(std::string);
+	void SetLocalDisplay(BOOL);
 
-	std::string GetIpAddress();
+	
 	CEdit txtWidth;
 	CEdit txtHeight;
 	CString txtWidVal;
 	CString txtHeightVal;
-	afx_msg void OnEnChangeHeight();
 	CString ipAddress;
 	CString port;
+	BOOL chkLocalDisplay;
+
 	afx_msg void OnBnClickedOk();
+	afx_msg void OnEnChangeHeight();
 };

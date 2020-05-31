@@ -18,6 +18,7 @@ BroadcastSettingsDlg::BroadcastSettingsDlg(CWnd* pParent /*=nullptr*/)
 	, txtHeightVal(_T(""))
 	, ipAddress(_T(""))
 	, port(_T(""))
+	, chkLocalDisplay(FALSE)
 {
 
 }
@@ -35,6 +36,7 @@ void BroadcastSettingsDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_HEIGHT, txtHeightVal);
 	DDX_Text(pDX, IDC_IPADDR, ipAddress);
 	DDX_Text(pDX, IDC_PORT, port);
+	DDX_Check(pDX, IDC_LOCALDISP, chkLocalDisplay);
 }
 
 
@@ -82,6 +84,11 @@ std::string BroadcastSettingsDlg::GetIpAddress() {
 	return strIp;
 }
 
+BOOL BroadcastSettingsDlg::GetLocalPlay()
+{
+	return chkLocalDisplay;
+}
+
 void BroadcastSettingsDlg::SetWidth(unsigned int w) {
 	CString strWidth;
 	strWidth.Format(_T("%d"), w);
@@ -102,6 +109,11 @@ void BroadcastSettingsDlg::SetPort(unsigned int p) {
 
 void BroadcastSettingsDlg::SetIpAddress(std::string ip) {
 	ipAddress = CString(ip.c_str());
+}
+
+void BroadcastSettingsDlg::SetLocalDisplay(BOOL l)
+{
+	chkLocalDisplay = l;
 }
 
 char* BroadcastSettingsDlg::ConvertCStringtoStr(CString input) {
