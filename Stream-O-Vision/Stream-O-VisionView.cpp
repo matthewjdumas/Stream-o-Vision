@@ -20,7 +20,7 @@
 #include "AddStationDialog.h"
 #include "BroadcastSettingsDlg.h"
 #include "vlcpp/vlc.hpp"
-
+#include "grpc++/grpc++.h"
 
 
 
@@ -171,7 +171,7 @@ void CStreamOVisionView::OnBnClickedAddstation()
 		Station newStation = Station(); 
 		newStation.StationId = newStationDlg.GetStationId();
 		newStation.StationName = newStationDlg.GetStationName();
-		int rowId = Database.AddStation(CStringToStdString(newStation.StationId), CStringToStdString(newStation.StationName));
+		int64_t rowId = Database.AddStation(CStringToStdString(newStation.StationId), CStringToStdString(newStation.StationName));
 		newStation.dbStationId = rowId;
 		Stations.push_back(newStation);
 		UpdateStations();
@@ -182,7 +182,7 @@ void CStreamOVisionView::OnBnClickedAddstation()
 void CStreamOVisionView::OnBnClickedDeletestation()
 {
 	if (StationList.GetCurSel() != LB_ERR) {
-		int dbId = Stations[StationList.GetCurSel()].dbStationId; 
+		int64_t dbId = Stations[StationList.GetCurSel()].dbStationId; 
 		Database.DeleteStation(dbId);
 		Database.DeletePlaylistByStationId(dbId);
 		Stations.erase(StationList.GetCurSel() + Stations.begin());
@@ -224,7 +224,7 @@ void CStreamOVisionView::OnBnClickedAddmedia()
 			StationList.SetCurSel(0);
 		}
 		int index = StationList.GetCurSel();
-		int dbPlaylistId = Database.AddPlaylistItem(CStringToStdString(browseDlg.GetFileName()), CStringToStdString(browseDlg.GetPathName()), Stations[index].dbStationId);
+		int64_t dbPlaylistId = Database.AddPlaylistItem(CStringToStdString(browseDlg.GetFileName()), CStringToStdString(browseDlg.GetPathName()), Stations[index].dbStationId);
 		Stations[index].Media.push_back(MediaItem(browseDlg.GetPathName(), browseDlg.GetFileName(), dbPlaylistId));
 		UpdatePlaylistContents();
 	}
