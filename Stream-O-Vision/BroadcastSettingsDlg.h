@@ -26,9 +26,25 @@ public:
 	char* ConvertCStringtoStr(CString);
 	unsigned int GetWidth();
 	unsigned int GetHeight();
+	unsigned int GetPort();
+	std::string GetIpAddress();
+	BOOL GetLocalPlay();
+
+	void SetWidth(unsigned int);
+	void SetHeight(unsigned int);
+	void SetPort(unsigned int);
+	void SetIpAddress(std::string);
+	void SetLocalDisplay(BOOL);
+
+	
 	CEdit txtWidth;
 	CEdit txtHeight;
 	CString txtWidVal;
 	CString txtHeightVal;
+	CString ipAddress;
+	CString port;
+	BOOL chkLocalDisplay;
+
+	afx_msg void OnBnClickedOk();
 	afx_msg void OnEnChangeHeight();
 };
