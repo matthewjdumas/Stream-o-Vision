@@ -15,6 +15,7 @@
 #define IDC_VLCPLUGIN1                  1001
 #define IDC_BUTTON1                     1002
 #define IDC_ADDMEDIA                    1002
+#define IDC_LOCALDISP                   1002
 #define IDC_PLAYLIST                    1004
 #define IDC_PLAY                        1005
 #define IDC_STOP                        1006
@@ -27,6 +28,9 @@
 #define IDC_WIDTH                       1015
 #define IDC_HEIGHT                      1016
 #define IDC_BCASTSETT                   1016
+#define IDC_PORT                        1017
+#define IDC_IPADDR                      1018
+#define IDC_CHECK1                      1019
 #define ID_Menu                         32771
 #define ID_VIEW_SETTINGS                32772
 
@@ -36,7 +40,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        327
 #define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1017
+#define _APS_NEXT_CONTROL_VALUE         1020
 #define _APS_NEXT_SYMED_VALUE           311
 #endif
 #endif

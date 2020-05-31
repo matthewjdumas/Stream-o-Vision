@@ -14,12 +14,16 @@ IMPLEMENT_DYNAMIC(MainVidContainer, CDialog)
 MainVidContainer::MainVidContainer(CWnd* pParent /*=nullptr*/)
 	: CDialog(IDD_MAINVID, pParent)
 {
+	
+	logFile = fopen("vlc_log.txt", "w");
 	VlcInstance = VLC::Instance(0, nullptr);
+	VlcInstance.logSetFile(logFile);
 
 }
 
 MainVidContainer::~MainVidContainer()
 {
+	fclose(logFile);
 }
 
 void MainVidContainer::StopPlayer()
@@ -29,6 +33,11 @@ void MainVidContainer::StopPlayer()
 
 void MainVidContainer::PlayVideo() {
 	VlcPlayer.setHwnd(this->GetSafeHwnd());
+	libvlc_meta_t metaData{};
+	auto stat = VlcMedia.parsedStatus();
+
+	VlcMedia.meta(metaData);
+
 	VlcPlayer.play();
 }
 
@@ -41,19 +50,41 @@ void MainVidContainer::ClosePlayer() {
 	OnClose();
 }
 
+void MainVidContainer::SetIp(std::string ip) {
+	ipAddress = ip;
+}
+
+void MainVidContainer::SetPort(unsigned int p) {
+	port = p;
+}
+
+void MainVidContainer::SetStationName(std::string s) {
+	stationName = s;
+}
+
 void MainVidContainer::SetMediaFile(char* path)
 {
 
 	if (VlcPlayer.isValid()) {
 		if (VlcPlayer.isPlaying()) {
 			VlcPlayer.stop();
-			delete VlcPlayer;
+			VlcPlayer = VLC::MediaPlayer();
 		}
 	}
 	
 	VlcMedia = VLC::Media(VlcInstance, path, VLC::Media::FromPath);
-	
+
+	std::string soutCmd = "";
+	if (showLocal) {
+		soutCmd = ":sout=#duplicate{dst=rtp{dst=" + ipAddress + ",port=" + std::to_string(port) + ",mux=ts,sap,name=" + stationName + "},dst=display}";
+	}
+	else {
+		soutCmd = ":sout=#rtp{dst=" + ipAddress + ",port=" + std::to_string(port) + ",mux=ts,sap,name=" + stationName + "}";
+	}
+
+	VlcMedia.addOption(soutCmd);
 	VlcPlayer = VLC::MediaPlayer(VlcMedia);
+
 	VlcMediaPlayerEventMgr = &VlcPlayer.eventManager();
 	auto vlcEndFunc = [this]() -> void {
 		::PostMessage(this->parentHwnd, WM_PLAYNEXT, 0, 0);
@@ -72,6 +103,11 @@ BEGIN_MESSAGE_MAP(MainVidContainer, CDialog)
 	ON_WM_CLOSE()
 END_MESSAGE_MAP()
 
+
+void MainVidContainer::SetLocalOutput(BOOL l) {
+	showLocal = l;
+
+}
 
 // MainVidContainer message handlers
 

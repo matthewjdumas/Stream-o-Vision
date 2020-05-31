@@ -16,6 +16,9 @@ BroadcastSettingsDlg::BroadcastSettingsDlg(CWnd* pParent /*=nullptr*/)
 	: CDialog(IDD_BCASTSETTINGS, pParent)
 	, txtWidVal(_T(""))
 	, txtHeightVal(_T(""))
+	, ipAddress(_T(""))
+	, port(_T(""))
+	, chkLocalDisplay(FALSE)
 {
 
 }
@@ -31,11 +34,15 @@ void BroadcastSettingsDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_HEIGHT, txtHeight);
 	DDX_Text(pDX, IDC_WIDTH, txtWidVal);
 	DDX_Text(pDX, IDC_HEIGHT, txtHeightVal);
+	DDX_Text(pDX, IDC_IPADDR, ipAddress);
+	DDX_Text(pDX, IDC_PORT, port);
+	DDX_Check(pDX, IDC_LOCALDISP, chkLocalDisplay);
 }
 
 
 BEGIN_MESSAGE_MAP(BroadcastSettingsDlg, CDialog)
 	ON_EN_CHANGE(IDC_HEIGHT, &BroadcastSettingsDlg::OnEnChangeHeight)
+	ON_BN_CLICKED(IDOK, &BroadcastSettingsDlg::OnBnClickedOk)
 END_MESSAGE_MAP()
 
 
@@ -65,6 +72,50 @@ unsigned int BroadcastSettingsDlg::GetHeight() {
 	unsigned int ul = std::strtoul(strHeight.c_str(), NULL, 0);
 	return ul;
 }
+
+unsigned int BroadcastSettingsDlg::GetPort() {
+	std::string strPort = ConvertCStringtoStr(port);
+	unsigned int ul = std::strtoul(strPort.c_str(), NULL, 0);
+	return ul;
+}
+
+std::string BroadcastSettingsDlg::GetIpAddress() {
+	std::string strIp = ConvertCStringtoStr(ipAddress);
+	return strIp;
+}
+
+BOOL BroadcastSettingsDlg::GetLocalPlay()
+{
+	return chkLocalDisplay;
+}
+
+void BroadcastSettingsDlg::SetWidth(unsigned int w) {
+	CString strWidth;
+	strWidth.Format(_T("%d"), w);
+	txtWidVal = strWidth;
+}
+
+void BroadcastSettingsDlg::SetHeight(unsigned int h) {
+	CString strHeight;
+	strHeight.Format(_T("%d"), h);
+	txtHeightVal = strHeight;
+}
+
+void BroadcastSettingsDlg::SetPort(unsigned int p) {
+	CString strPort;
+	strPort.Format(_T("%d"), p);
+	port = strPort;
+}
+
+void BroadcastSettingsDlg::SetIpAddress(std::string ip) {
+	ipAddress = CString(ip.c_str());
+}
+
+void BroadcastSettingsDlg::SetLocalDisplay(BOOL l)
+{
+	chkLocalDisplay = l;
+}
+
 char* BroadcastSettingsDlg::ConvertCStringtoStr(CString input) {
 	const size_t newsizew = (input.GetLength() + 1) * 2;
 	char* nstringw = new char[newsizew];
@@ -82,4 +133,11 @@ void BroadcastSettingsDlg::OnEnChangeHeight()
 	// with the ENM_CHANGE flag ORed into the mask.
 
 	// TODO:  Add your control notification handler code here
+}
+
+
+void BroadcastSettingsDlg::OnBnClickedOk()
+{
+	// TODO: Add your control notification handler code here
+	CDialog::OnOK();
 }

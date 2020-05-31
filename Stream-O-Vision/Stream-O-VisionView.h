@@ -75,6 +75,8 @@ public:
 protected:
 
 	afx_msg LRESULT OnPlaynext(WPARAM wParam, LPARAM lParam);
+public:
+
 };
 
 #ifndef _DEBUG  // debug version in Stream-O-VisionView.cpp

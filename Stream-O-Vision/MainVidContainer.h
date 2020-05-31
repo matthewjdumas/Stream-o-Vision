@@ -16,12 +16,22 @@ public:
 	void ClosePlayer();
 	void SetMediaFile(char*);
 	void SetParentHwnd(HWND);
+	void SetIp(std::string);
+	void SetPort(unsigned int);
+	void SetStationName(std::string);
+	void SetLocalOutput(BOOL);
+
 
 	VLC::Instance VlcInstance;
 	VLC::MediaPlayer VlcPlayer;
 	VLC::Media VlcMedia;
 	VLC::MediaPlayerEventManager* VlcMediaPlayerEventMgr;
 	HWND parentHwnd;
+	FILE* logFile;
+	std::string stationName; 
+	std::string ipAddress; 
+	unsigned int port;
+	BOOL showLocal{ FALSE };
 
 
 // Dialog Data

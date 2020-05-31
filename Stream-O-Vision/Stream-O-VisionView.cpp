@@ -43,7 +43,6 @@ ON_BN_CLICKED(IDC_STOP, &CStreamOVisionView::OnBnClickedStop)
 ON_BN_CLICKED(IDC_DELETESTATION, &CStreamOVisionView::OnBnClickedDeletestation)
 ON_WM_WINDOWPOSCHANGED()
 ON_BN_CLICKED(IDC_BCASTSETT, &CStreamOVisionView::OnBnClickedBcastsett)
-
 ON_MESSAGE(WM_PLAYNEXT, &CStreamOVisionView::OnPlaynext)
 END_MESSAGE_MAP()
 
@@ -56,8 +55,7 @@ CStreamOVisionView::CStreamOVisionView() noexcept
 	TRACE("Database Open return value: ", err);
 	this->Database.LoadAll();
 	this->Stations = this->Database.GetStationMap();	
-	this->ViewerSettings.Height = 480;
-	this->ViewerSettings.Width = 640;
+	ViewerSettings = BroadcastViewerSettings(480, 640, 5004, "224.0.0.239", TRUE);
 }
 
 CStreamOVisionView::~CStreamOVisionView()
@@ -133,6 +131,28 @@ void CStreamOVisionView::UpdatePlaylistContents() {
 
 void CStreamOVisionView::OnBnClickedPlay()
 {	
+	int stationIndex = StationList.GetCurSel();
+	if (stationIndex == LB_ERR) {
+		return;
+	}
+	if (PlaylistContents.GetCurSel() == LB_ERR) {
+		return;
+	}
+	std::string stationName = ConvertCStringtoStr(Stations[stationIndex].StationName);
+
+	if (!::IsWindow(MainVidCont.m_hWnd)) {
+		MainVidCont.Create(IDD_MAINVID);
+		MainVidCont.SetParentHwnd(this->GetSafeHwnd());
+		CRect windowRect, thisRect;
+		MainVidCont.GetWindowRect(&windowRect);
+		GetWindowRect(&thisRect);
+		MainVidCont.MoveWindow(windowRect.left + thisRect.Width() + 25, thisRect.top - 75, ViewerSettings.Width, ViewerSettings.Height);
+		MainVidCont.ShowWindow(SW_SHOW);
+		MainVidCont.SetIp(ViewerSettings.IpAddress);
+		MainVidCont.SetPort(ViewerSettings.Port);
+		MainVidCont.SetStationName(stationName);
+		MainVidCont.SetLocalOutput(ViewerSettings.LocalPlay);
+	}
 	HandlePlay();
 }
 
@@ -242,21 +262,28 @@ std::string CStreamOVisionView::CStringToStdString(CString input) {
 void CStreamOVisionView::OnBnClickedBcastsett()
 {
 	BroadcastSettingsDlg bSett;
+	bSett.SetIpAddress(ViewerSettings.IpAddress);
+	bSett.SetPort(ViewerSettings.Port);
+	bSett.SetWidth(ViewerSettings.Width);
+	bSett.SetHeight(ViewerSettings.Height);
+	bSett.SetLocalDisplay(ViewerSettings.LocalPlay);
+
 	if (bSett.DoModal() == IDOK) {
 		unsigned int width = bSett.GetWidth();
 		unsigned int height = bSett.GetHeight();
+		std::string ipAddress = bSett.GetIpAddress();
+		unsigned int port = bSett.GetPort();
 		ViewerSettings.Height = height;
 		ViewerSettings.Width = width;
+		ViewerSettings.Port = port;
+		ViewerSettings.IpAddress = ipAddress;
+		ViewerSettings.LocalPlay = bSett.GetLocalPlay();
 	}
 
 }
 
 void CStreamOVisionView::HandlePlay() {
 	int stationIndex = StationList.GetCurSel();
-	if (::IsWindow(MainVidCont.m_hWnd)) {
-		MainVidCont.CloseWindow();
-		MainVidCont.DestroyWindow();
-	}
 	if (stationIndex == LB_ERR) {
 		return;
 	}
@@ -269,15 +296,6 @@ void CStreamOVisionView::HandlePlay() {
 	char* strVid = ConvertCStringtoStr(cStrVid.GetString());
 	
 	MainVidCont.SetMediaFile(strVid);
-	
-	MainVidCont.Create(IDD_MAINVID);
-	MainVidCont.SetParentHwnd(this->GetSafeHwnd());
-
-	CRect windowRect, thisRect;
-	MainVidCont.GetWindowRect(&windowRect);
-	GetWindowRect(&thisRect);
-	MainVidCont.MoveWindow(windowRect.left + thisRect.Width() + 25, thisRect.top - 75, ViewerSettings.Width, ViewerSettings.Height);
-	MainVidCont.ShowWindow(SW_SHOW);
 
 	MainVidCont.PlayVideo();
 
@@ -288,13 +306,13 @@ afx_msg LRESULT CStreamOVisionView::OnPlaynext(WPARAM wParam, LPARAM lParam)
 {
 	int stationIndex = StationList.GetCurSel();
 	if (this->PlaylistContents.GetCurSel() == this->PlaylistContents.GetCount() - 1) {
-		this->PlaylistContents.SetSel(-1, FALSE);
+		this->PlaylistContents.SetSel(PlaylistContents.GetCurSel(), FALSE);
+		MainVidCont.StopPlayer();
 	}
 	else {
 		this->Stations[stationIndex].MediaCurrentIndex = this->Stations[stationIndex].MediaCurrentIndex++;
 		this->PlaylistContents.SetCurSel(this->Stations[stationIndex].MediaCurrentIndex);
-	}
-
-	HandlePlay();
+		HandlePlay();
+	}	
 	return 0;
 }

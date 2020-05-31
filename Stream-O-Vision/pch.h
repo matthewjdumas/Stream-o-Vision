@@ -25,15 +25,15 @@ struct MediaItem {
 	int dbPlaylistId;
 
 	MediaItem(CString path, CString filename, int dbId) {
-		this->Path = path; 
-		this->Filename = filename;
-		this->dbPlaylistId = dbId;
+		Path = path; 
+		Filename = filename;
+		dbPlaylistId = dbId;
 	}
 
 	MediaItem() {
-		this->Filename = "";
-		this->Path = "";
-		this->dbPlaylistId = -1;
+		Filename = "";
+		Path = "";
+		dbPlaylistId = -1;
 	}
 };
 
@@ -45,23 +45,31 @@ struct Station {
 	unsigned int MediaCurrentIndex; 
 
 	Station() {
-		this->dbStationId = -1;
-		this->StationId = "";
-		this->StationName = "";
-		this->MediaCurrentIndex = 0;
+		dbStationId = -1;
+		StationId = "";
+		StationName = "";
+		MediaCurrentIndex = 0;
 	}
 };
 
 struct BroadcastViewerSettings {
-	unsigned int Height, Width;
+	unsigned int Height, Width, Port;
+	std::string IpAddress;
+	BOOL LocalPlay;
 
 	BroadcastViewerSettings() {
-		this->Height = 480;
-		this->Width = 640;
+		Height = 480;
+		Width = 640;
+		Port = 5004;
+		IpAddress = "";
+		LocalPlay = FALSE;
 	}
-	BroadcastViewerSettings(unsigned int h, unsigned int w) {
-		this->Height = h;
-		this->Width = w;
+	BroadcastViewerSettings(unsigned int h, unsigned int w, unsigned int p, std::string ip, BOOL l) {
+		Height = h;
+		Width = w;
+		Port = p;
+		IpAddress = ip;
+		LocalPlay = l;
 	}
 
 };
