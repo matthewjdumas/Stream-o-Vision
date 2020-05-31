@@ -14,12 +14,16 @@ IMPLEMENT_DYNAMIC(MainVidContainer, CDialog)
 MainVidContainer::MainVidContainer(CWnd* pParent /*=nullptr*/)
 	: CDialog(IDD_MAINVID, pParent)
 {
+	
+	logFile = fopen("vlc_log.txt", "w");
 	VlcInstance = VLC::Instance(0, nullptr);
+	VlcInstance.logSetFile(logFile);
 
 }
 
 MainVidContainer::~MainVidContainer()
 {
+	fclose(logFile);
 }
 
 void MainVidContainer::StopPlayer()
@@ -41,18 +45,32 @@ void MainVidContainer::ClosePlayer() {
 	OnClose();
 }
 
+void MainVidContainer::SetIp(std::string ip) {
+	ipAddress = ip;
+}
+
+void MainVidContainer::SetPort(unsigned int p) {
+	port = p;
+}
+
+void MainVidContainer::SetStationName(std::string s) {
+	stationName = s;
+}
+
 void MainVidContainer::SetMediaFile(char* path)
 {
 
 	if (VlcPlayer.isValid()) {
 		if (VlcPlayer.isPlaying()) {
 			VlcPlayer.stop();
-			delete VlcPlayer;
+			VlcPlayer = VLC::MediaPlayer();
 		}
 	}
 	
 	VlcMedia = VLC::Media(VlcInstance, path, VLC::Media::FromPath);
-	
+	std::string soutCmd = ":sout=#rtp{dst="+ipAddress+",port=" + std::to_string(port) + ",mux=ts,sap,name="+stationName+"}";
+
+	VlcMedia.addOption(soutCmd);
 	VlcPlayer = VLC::MediaPlayer(VlcMedia);
 	VlcMediaPlayerEventMgr = &VlcPlayer.eventManager();
 	auto vlcEndFunc = [this]() -> void {

@@ -43,7 +43,6 @@ ON_BN_CLICKED(IDC_STOP, &CStreamOVisionView::OnBnClickedStop)
 ON_BN_CLICKED(IDC_DELETESTATION, &CStreamOVisionView::OnBnClickedDeletestation)
 ON_WM_WINDOWPOSCHANGED()
 ON_BN_CLICKED(IDC_BCASTSETT, &CStreamOVisionView::OnBnClickedBcastsett)
-
 ON_MESSAGE(WM_PLAYNEXT, &CStreamOVisionView::OnPlaynext)
 END_MESSAGE_MAP()
 
@@ -268,16 +267,22 @@ void CStreamOVisionView::HandlePlay() {
 	CString cStrVid = Stations[stationIndex].Media[Stations[stationIndex].MediaCurrentIndex].Path;
 	char* strVid = ConvertCStringtoStr(cStrVid.GetString());
 	
-	MainVidCont.SetMediaFile(strVid);
+	std::string ip = "224.0.0.239";
+	std::string stationName = ConvertCStringtoStr(Stations[stationIndex].StationName);
 	
 	MainVidCont.Create(IDD_MAINVID);
 	MainVidCont.SetParentHwnd(this->GetSafeHwnd());
-
+	
 	CRect windowRect, thisRect;
 	MainVidCont.GetWindowRect(&windowRect);
 	GetWindowRect(&thisRect);
 	MainVidCont.MoveWindow(windowRect.left + thisRect.Width() + 25, thisRect.top - 75, ViewerSettings.Width, ViewerSettings.Height);
 	MainVidCont.ShowWindow(SW_SHOW);
+
+	MainVidCont.SetIp(ip);
+	MainVidCont.SetPort(5004);
+	MainVidCont.SetStationName(stationName);
+	MainVidCont.SetMediaFile(strVid);
 
 	MainVidCont.PlayVideo();
 
