@@ -1,5 +1,5 @@
 # Stream-o-Vision
-#### Your own personal Streaming Television Company.
+#### Your own personal IPTV stations.
 
 ## About
 The purpose of this project is to provide normal people with their very own streaming IPTV station. By integrating VLC with a scheduler, database connector, and user frendly GUI the project will put the power of any streaming company into your hands. 
