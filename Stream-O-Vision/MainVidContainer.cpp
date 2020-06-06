@@ -18,7 +18,6 @@ MainVidContainer::MainVidContainer(CWnd* pParent /*=nullptr*/)
 	logFile = fopen("vlc_log.txt", "w");
 	VlcInstance = VLC::Instance(0, nullptr);
 	VlcInstance.logSetFile(logFile);
-
 }
 
 MainVidContainer::~MainVidContainer()
@@ -36,6 +35,7 @@ void MainVidContainer::PlayVideo() {
 	libvlc_meta_t metaData{};
 	auto stat = VlcMedia.parsedStatus();
 
+	
 	VlcMedia.meta(metaData);
 
 	VlcPlayer.play();
@@ -72,6 +72,7 @@ void MainVidContainer::SetMediaFile(char* path)
 		}
 	}
 	
+	
 	VlcMedia = VLC::Media(VlcInstance, path, VLC::Media::FromPath);
 
 	std::string soutCmd = "";
@@ -83,6 +84,7 @@ void MainVidContainer::SetMediaFile(char* path)
 	}
 
 	VlcMedia.addOption(soutCmd);
+
 	VlcPlayer = VLC::MediaPlayer(VlcMedia);
 
 	VlcMediaPlayerEventMgr = &VlcPlayer.eventManager();
@@ -90,8 +92,7 @@ void MainVidContainer::SetMediaFile(char* path)
 		::PostMessage(this->parentHwnd, WM_PLAYNEXT, 0, 0);
 	};
 
-	VlcMediaPlayerEventMgr->onEndReached(vlcEndFunc);
-	
+	VlcMediaPlayerEventMgr->onEndReached(vlcEndFunc);	
 }
 
 void MainVidContainer::SetParentHwnd(HWND h)
@@ -107,6 +108,11 @@ END_MESSAGE_MAP()
 void MainVidContainer::SetLocalOutput(BOOL l) {
 	showLocal = l;
 
+}
+
+void MainVidContainer::SetRenderer(const VLC::RendererDiscoverer::Item&& r)
+{
+	VlcPlayer.setRenderer(r);
 }
 
 // MainVidContainer message handlers

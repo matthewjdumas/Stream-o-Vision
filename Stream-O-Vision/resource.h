@@ -10,12 +10,15 @@
 #define IDR_StreamStationTYPE           130
 #define ID_STATUS_PAGE                  310
 #define IDD_DIALOG1                     319
+#define IDD_STATIONDLG                  319
 #define IDD_MAINVID                     323
 #define IDD_BCASTSETTINGS               325
+#define IDD_CASTDLG                     333
 #define IDC_VLCPLUGIN1                  1001
 #define IDC_BUTTON1                     1002
 #define IDC_ADDMEDIA                    1002
 #define IDC_LOCALDISP                   1002
+#define IDC_BTNSCAN                     1002
 #define IDC_PLAYLIST                    1004
 #define IDC_PLAY                        1005
 #define IDC_STOP                        1006
@@ -31,6 +34,9 @@
 #define IDC_PORT                        1017
 #define IDC_IPADDR                      1018
 #define IDC_CHECK1                      1019
+#define IDC_RENDERITEMS                 1024
+#define IDC_BUTTON2                     1025
+#define IDC_BTNCAST                     1025
 #define ID_Menu                         32771
 #define ID_VIEW_SETTINGS                32772
 
@@ -38,9 +44,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        327
+#define _APS_NEXT_RESOURCE_VALUE        335
 #define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1020
+#define _APS_NEXT_CONTROL_VALUE         1026
 #define _APS_NEXT_SYMED_VALUE           311
 #endif
 #endif

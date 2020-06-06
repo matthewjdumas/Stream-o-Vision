@@ -44,6 +44,7 @@ ON_BN_CLICKED(IDC_DELETESTATION, &CStreamOVisionView::OnBnClickedDeletestation)
 ON_WM_WINDOWPOSCHANGED()
 ON_BN_CLICKED(IDC_BCASTSETT, &CStreamOVisionView::OnBnClickedBcastsett)
 ON_MESSAGE(WM_PLAYNEXT, &CStreamOVisionView::OnPlaynext)
+ON_BN_CLICKED(IDC_BTNCAST, &CStreamOVisionView::OnBnClickedBtncast)
 END_MESSAGE_MAP()
 
 // CStreamOVisionView construction/destruction
@@ -302,6 +303,7 @@ void CStreamOVisionView::HandlePlay() {
 	//std::this_thread::sleep_for(std::chrono::seconds(10));   // how to do a sleep!
 }
 
+
 afx_msg LRESULT CStreamOVisionView::OnPlaynext(WPARAM wParam, LPARAM lParam)
 {
 	int stationIndex = StationList.GetCurSel();
@@ -315,4 +317,30 @@ afx_msg LRESULT CStreamOVisionView::OnPlaynext(WPARAM wParam, LPARAM lParam)
 		HandlePlay();
 	}	
 	return 0;
+}
+
+
+void CStreamOVisionView::OnBnClickedBtncast()
+{
+	if (!::IsWindow(dlgCast.m_hWnd)) {
+		dlgCast.Create(IDD_CASTDLG);
+		CRect windowRect, thisRect;
+		dlgCast.GetWindowRect(&windowRect);
+		GetWindowRect(&thisRect);
+		dlgCast.MoveWindow(windowRect.left + thisRect.Width() + 25, thisRect.top - 75, windowRect.Width(), windowRect.Height());
+
+		int stationIndex = StationList.GetCurSel();
+		if (stationIndex == LB_ERR) {
+			return;
+		}
+		if (PlaylistContents.GetCurSel() == LB_ERR) {
+			return;
+		}
+
+		Stations[stationIndex].MediaCurrentIndex = PlaylistContents.GetCurSel();
+		CString cStrVid = Stations[stationIndex].Media[Stations[stationIndex].MediaCurrentIndex].Path;
+		char* strVid = ConvertCStringtoStr(cStrVid.GetString());
+		dlgCast.SetStream(strVid);
+		dlgCast.ShowWindow(SW_SHOW);
+	}
 }

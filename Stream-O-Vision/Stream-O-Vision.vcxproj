@@ -192,6 +192,7 @@ xcopy /y /d "$(ProjectDir)db_seed\*" "$(OutDir)" /E /H</Command>
   <ItemGroup>
     <ClInclude Include="AddStationDialog.h" />
     <ClInclude Include="BroadcastSettingsDlg.h" />
+    <ClInclude Include="CastDlg.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MainVidContainer.h" />
@@ -206,6 +207,7 @@ xcopy /y /d "$(ProjectDir)db_seed\*" "$(OutDir)" /E /H</Command>
   <ItemGroup>
     <ClCompile Include="AddStationDialog.cpp" />
     <ClCompile Include="BroadcastSettingsDlg.cpp" />
+    <ClCompile Include="CastDlg.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MainVidContainer.cpp" />
     <ClCompile Include="pch.cpp">

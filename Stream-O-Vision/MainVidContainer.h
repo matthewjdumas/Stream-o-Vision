@@ -20,6 +20,7 @@ public:
 	void SetPort(unsigned int);
 	void SetStationName(std::string);
 	void SetLocalOutput(BOOL);
+	void SetRenderer(const VLC::RendererDiscoverer::Item&&);
 
 
 	VLC::Instance VlcInstance;

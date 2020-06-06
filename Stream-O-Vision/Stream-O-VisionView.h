@@ -5,6 +5,7 @@
 #pragma once
 #include "SqliteHandler.h"
 #include "MainVidContainer.h"
+#include "CastDlg.h"
 
 
 
@@ -69,14 +70,16 @@ public:
 	CListBox StationList;
 	CListBox PlaylistContents; // variable to hold the contents of the playlist
 	MainVidContainer MainVidCont;
+	CastDlg dlgCast;
 	BroadcastViewerSettings ViewerSettings; 
-	
+	std::vector<VLC::RendererDiscoverer::Item> Items;
 
 protected:
 
 	afx_msg LRESULT OnPlaynext(WPARAM wParam, LPARAM lParam);
 public:
 
+	afx_msg void OnBnClickedBtncast();
 };
 
 #ifndef _DEBUG  // debug version in Stream-O-VisionView.cpp
